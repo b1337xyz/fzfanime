@@ -25,7 +25,7 @@ while sleep 15;do
     if ! diff -q "$a" "$b" >/dev/null 2>&1
     then
         cp "$b" "$a"
-        ./tools/update.sh
+        ./update.sh
     fi
     search
 done
