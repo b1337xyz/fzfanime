@@ -158,7 +158,6 @@ blacklist = [
     'Fate Extra Last Encore Illustrias Tendousetsu (2018)',
     'Drifters The Outlandish Knight (2018)',
 ]
-blacklist = list()
 lst = [
     i for i in os.listdir(ANIME_DIR)
     if i not in anilist and i not in blacklist
