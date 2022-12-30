@@ -50,4 +50,4 @@ BACKEND=ueberzug # ueberzug kitty
 |Ctrl-p  | Play current line with `$PLAYER`                             |
 |Ctrl-r  | Reload                                                       |
 
-![preview](demo.gif)
+![demo](demo.gif)
