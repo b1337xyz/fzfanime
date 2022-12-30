@@ -20,7 +20,7 @@ BACKEND=ueberzug # ueberzug kitty
 ### Dependencies
 - [fzf](https://github.com/junegunn/fzf)
 - [jq](https://github.com/stedolan/jq)
-- [ueberzug](https://github.com/b1337xyz/ueberzug)
+- [ueberzug](https://github.com/b1337xyz/ueberzug) (optional)
 - [devour](https://github.com/salman-abedin/devour) (optional)
 
 ---
