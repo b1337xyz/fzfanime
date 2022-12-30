@@ -1,4 +1,4 @@
-## WARNING: Edit/Read the scripts before running them 
+## IMPORTANT: Edit/Read the scripts before running them 
 
 ### Dependencies
 - [beautifulsoup4](https://www.crummy.com/software/BeautifulSoup/)

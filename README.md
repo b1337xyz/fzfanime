@@ -1,4 +1,4 @@
-## WARNING: Edit/Read the scripts before running them 
+## IMPORTANT: Edit/Read the scripts before running them 
 
 ### Notes:
 - Files in `$ANIME_DIR` are all symlinks 
