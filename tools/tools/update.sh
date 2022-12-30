@@ -28,14 +28,14 @@ done
 echo updating...
 find -L /mnt/*/Anime -mindepth 1 -maxdepth 1 | while read -r i
 do
-    [ -h ~/Videos/Anime/"${i##*/}" ] ||
-        ln -fvrs "$i" ~/Videos/Anime
+    [ -h "${ANIME_DIR}/${i##*/}" ] ||
+        ln -fvrs "$i" "${ANIME_DIR}"
 done
 
 set -x
 
-./update_maldb.py
-./update_anilist.py
-./tools/clean_db.py
+../update_maldb.py
+../update_anilist.py
+./clean_db.py
 
 exit 0
