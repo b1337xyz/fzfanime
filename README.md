@@ -1,11 +1,9 @@
 ## IMPORTANT: Edit/Read the scripts before running them 
 
 ### Notes:
-- Files in `$ANIME_DIR` are all symlinks 
+- The script expects that all files in `$ANIME_DIR` are symlinks
 - Before running `fzfanime.sh` create `$DB` and `$MALDB`
 - By default anilist is used as main database
-
----
 
 ### Defaults
 ```bash
@@ -18,8 +16,6 @@ WATCHED_FILE=~/.cache/watched_anime.txt
 MPVHIST=~/.cache/mpv/mpvhistory.log # https://github.com/b1337xyz/config/blob/main/mpv/scripts/mpvhistory.lua
 BACKEND=ueberzug # ueberzug kitty
 ```
-
----
 
 ### Dependencies
 - [fzf](https://github.com/junegunn/fzf)
