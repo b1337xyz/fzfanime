@@ -29,29 +29,29 @@ BACKEND=ueberzug # ueberzug kitty
 
 ---
 
-| Bind   | Description                                       |
-|--------|---------------------------------------------------|
-|alt-c   | continue watching                                 |
-|alt-s   | shuffle list                                      |
-|alt-a   | add current line to `$WATCHED_FILE`               |
-|alt-d   | remove current line from `$WATCHED_FILE`          |
-|alt-u   | unlist entries from `$WATCHED_FILE`               |
-|ctrl-l  | load `$ANIMEHIST`                                 |
-|ctrl-w  | load `$WATCHED_FILE`                              |
-|alt-p   | select `path`                                     |
-|alt-r   | select `rated`                                    |
-|ctrl-v  | select `type`                                     |
-|alt-b   | sort by size                                      |
-|alt-l   | sort by ctime (time of last modification of file) |
-|ctrl-e  | sort by episodes                                  |
-|ctrl-g  | sort by genre                                     |
-|ctrl-s  | sort by score                                     |
-|ctrl-y  | sort by year                                      |
-|ctrl-a  | list only available entries                       |
-|ctrl-h  | list only entries rated Rx                        |
-|ctrl-b  | go to first item of the list                      |
-|ctrl-t  | go to last item of the list                       |
-|ctrl-p  | play current line with `$PLAYER`                  |
-|ctrl-r  | reload                                            |
+| Bind   | Description                                                  |
+|---     |---                                                           |
+|Alt-c   | continue watching                                            |
+|Alt-s   | shuffle list                                                 |
+|Alt-a   | add current line to `$WATCHED_FILE`                          |
+|Alt-d   | remove current line from `$WATCHED_FILE`                     |
+|Alt-u   | unlist entries from `$WATCHED_FILE`                          |
+|Ctrl-l  | load `$ANIMEHIST`                                            |
+|Ctrl-w  | load `$WATCHED_FILE`                                         |
+|Alt-p   | select `path`                                                |
+|Alt-r   | select `rated`                                               |
+|Ctrl-v  | select `type`                                                |
+|Alt-b   | sort by size                                                 |
+|Alt-l   | sort by ctime (time of last modification of file)            |
+|Ctrl-e  | sort by episodes                                             |
+|Ctrl-g  | sort by genre                                                |
+|Ctrl-s  | sort by score                                                |
+|Ctrl-y  | sort by year                                                 |
+|Ctrl-a  | list only available entries                                  |
+|Ctrl-h  | list only entries rated Rx                                   |
+|Ctrl-b  | go to first item of the list                                 |
+|Ctrl-t  | go to last item of the list                                  |
+|Ctrl-p  | play current line with `$PLAYER`                             |
+|Ctrl-r  | reload                                                       |
 
 ![preview]()
