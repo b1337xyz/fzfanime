@@ -3,6 +3,7 @@ from urllib.request import urlopen, urlretrieve
 from thefuzz import process
 from urllib.parse import quote
 from time import sleep
+from shutil import copy
 import json
 import os
 import re
@@ -26,6 +27,7 @@ def clean_str(s):
 
 def request(url):
     try:
+        copy(CACHE, f'{CACHE}.bak')
         with open(CACHE, 'r') as fp:
             cache = json.load(fp)
     except FileNotFoundError:
@@ -79,6 +81,7 @@ def main():
         os.mkdir(IMG_DIR)
 
     try:
+        copy(DB_PATH, f'{DB_PATH}.bak')
         with open(DB_PATH, 'r') as fp:
             maldb = json.load(fp)
     except FileNotFoundError:

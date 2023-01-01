@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from thefuzz import process
 from time import sleep
+from shutil import copy
 import requests
 import re
 import os
@@ -142,6 +143,7 @@ def clean_str(s):
 
 
 try:
+    copy(DB, f'{DB}.bak')
     with open(DB, 'r') as fp:
         anilist = json.load(fp)
 except FileNotFoundError:
@@ -158,6 +160,7 @@ blacklist = [
     'Fate Extra Last Encore Illustrias Tendousetsu (2018)',
     'Drifters The Outlandish Knight (2018)',
 ]
+blacklist = list()
 lst = [
     i for i in os.listdir(ANIME_DIR)
     if i not in anilist and i not in blacklist
@@ -232,7 +235,7 @@ for idx, inp in enumerate(lst):
         for i in media['studios']['nodes']:
             studios.append(i['name'])
         if not studios:
-            studios = maldb[k]['studios']
+            studios = maldb[inp]['studios']
 
         anilist[inp] = {
             'idMal': media['idMal'],
