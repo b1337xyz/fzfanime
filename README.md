@@ -22,6 +22,7 @@ PLAYER='mpv'
 - [jq](https://github.com/stedolan/jq)
 - [ueberzug](https://github.com/b1337xyz/ueberzug) (optional)
 - [devour](https://github.com/salman-abedin/devour) (optional)
+- [mpvhistory.lua](https://github.com/b1337xyz/config/blob/main/mpv/scripts/mpvhistory.lua) (optional)
 
 ---
 
