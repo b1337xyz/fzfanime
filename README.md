@@ -3,19 +3,19 @@
 ### Notes:
 - The script expects that all files in `$ANIME_DIR` are symlinks
 - Before running `fzfanime.sh` create `$DB` and `$MALDB`
-- By default anilist is used as main database
+- By default AniList is used as main database
+
+---
 
 ### Defaults
 ```bash
 ANIME_DIR=~/Videos/Anime    
+BACKEND=ueberzug    # ueberzug kitty
+DB=anilist.json     # generated with tools/update_anilist.py
+MALDB=maldb.json    # generated with tools/update_maldb.py
 PLAYER='mpv'                 
-DB=~/.cache/anilist.json    # generated with tools/update_anilist.py
-MALDB=~/.cache/maldb.json   # generated with tools/update_maldb.py
-ANIMEHIST=~/.cache/anime_history.txt
-WATCHED_FILE=~/.cache/watched_anime.txt
-MPVHIST=~/.cache/mpv/mpvhistory.log # https://github.com/b1337xyz/config/blob/main/mpv/scripts/mpvhistory.lua
-BACKEND=ueberzug # ueberzug kitty
 ```
+---
 
 ### Dependencies
 - [fzf](https://github.com/junegunn/fzf)

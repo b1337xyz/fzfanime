@@ -21,27 +21,7 @@
 #       }
 #     }, ...
 
-
-### USER SETTINGS
-
-declare -r -x ANIME_DIR=~/Videos/Anime
-declare -r -x PLAYER='mpv --profile=fzfanime'
-declare -r -x DB=~/.scripts/python/myanimedb/anilist.json
-declare -r -x MALDB=~/.scripts/python/myanimedb/maldb.json
-declare -r -x ANIMEHIST=~/.cache/anime_history.txt
-declare -r -x WATCHED_FILE=~/.cache/watched_anime.txt
-declare -r -x MPVHIST=~/.cache/mpv/mpvhistory.log
-[ -n "$DISPLAY" ] && declare -r -x BACKEND=ueberzug # ueberzug kitty
-
-### END OF USER SETTINGS
-
 set -eo pipefail
-
-[ -d "$ANIME_DIR" ] || { printf '%s not found\n' "${ANIME_DIR}"; exit 1; }
-
-declare -r -x mainfile=$(mktemp --dry-run) 
-declare -r -x tempfile=$(mktemp --dry-run)
-declare -r -x modefile=$(mktemp --dry-run)
 
 root=$(realpath "$0") root=${root%/*}
 # shellcheck disable=SC1091
@@ -50,9 +30,37 @@ source "${root}/preview.sh" || {
     exit 1;
 }
 
+### USER SETTINGS
+declare -r -x ANIME_DIR=~/Videos/Anime
+declare -r -x PLAYER='mpv --profile=fzfanime'
+declare -r -x DB="${root}/anilist.json"
+declare -r -x MALDB="${root}/maldb.json"
+declare -r -x BACKEND=ueberzug # ueberzug kitty
+declare -r -x ANIMEHIST="${root}"/anime_history.txt
+declare -r -x WATCHED_FILE="${root}"/watched_anime.txt
+### END OF USER SETTINGS
+
+### PREVIEW SETTINGS
+declare -r -x W3MIMGDISPLAY=/usr/lib/w3m/w3mimgdisplay
+declare -r -x UEBERZUG_FIFO=$(mktemp --dry-run --suffix "fzf-$$-ueberzug")
+declare -r -x WIDTH=32 # image width
+declare -r -x HEIGHT=20
+declare -r -x MPVHIST=~/.cache/mpv/mpvhistory.log # https://github.com/b1337xyz/config/blob/main/mpv/scripts/mpvhistory.lua
+declare -r -x CACHE_DIR=~/.cache/fzfanime_preview
+### END OF PREVIEW SETTINGS
+
+
+[ -d "$CACHE_DIR" ] || mkdir -p "$CACHE_DIR"
+[ -d "$ANIME_DIR" ] || { printf '%s not found\n' "${ANIME_DIR}"; exit 1; }
+
+declare -r -x mainfile=$(mktemp --dry-run) 
+declare -r -x tempfile=$(mktemp --dry-run)
+declare -r -x modefile=$(mktemp --dry-run)
+
 function play {
     [ -e "${ANIME_DIR}/$1" ] || return 1
     echo "$1" >> "$ANIMEHIST"
+    # shellcheck disable=SC2086
     if command -v devour >/dev/null 2>&1;then
         devour $PLAYER "${ANIME_DIR}/$1" >/dev/null 2>&1
     else
@@ -181,7 +189,7 @@ function main {
 export -f main play
 
 trap finalise EXIT HUP INT
-[ "$BACKEND" = "ueberzug" ] && start_ueberzug >/dev/null 2>&1
+[ "$BACKEND" = "ueberzug" ] && [ -n "$DISPLAY" ] && start_ueberzug >/dev/null 2>&1
 
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \

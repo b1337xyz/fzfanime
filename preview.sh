@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2155
-# shellcheck disable=SC2154
-declare -r -x W3MIMGDISPLAY=/usr/lib/w3m/w3mimgdisplay
-declare -r -x UEBERZUG_FIFO=$(mktemp --dry-run --suffix "fzf-$$-ueberzug")
-declare -r -x WIDTH=32 # image width
-declare -r -x HEIGHT=20
-declare -r -x cache_dir=~/.cache/fzfanime_preview
-[ -d "$cache_dir" ] || mkdir -p "$cache_dir"
-
+# shellcheck disable=SC2155,SC2154,SC2086,SC2153
 function start_ueberzug {
     mkfifo "${UEBERZUG_FIFO}"
     tail --follow "$UEBERZUG_FIFO" | ueberzug layer --parser json 2>/dev/null &
@@ -37,7 +29,7 @@ function check_link {
     fi
 
     declare -a files=()
-    cache="${cache_dir}/${1}"
+    cache="${CACHE_DIR}/${1}"
     if [ -e "$p" ]; then
         [ -f "$cache" ] && rm "$cache"
         ext_ptr='.*\.\(webm\|mkv\|avi\|mp4\|ogm\|mpg\|rmvb\)$'
