@@ -36,8 +36,8 @@ declare -r -x PLAYER='mpv --profile=fzfanime'
 declare -r -x DB="${root}/anilist.json"
 declare -r -x MALDB="${root}/maldb.json"
 declare -r -x BACKEND=ueberzug # ueberzug kitty
-declare -r -x ANIMEHIST="${root}"/anime_history.txt
-declare -r -x WATCHED_FILE="${root}"/watched_anime.txt
+declare -r -x ANIMEHIST="${root}/anime_history.txt"
+declare -r -x WATCHED_FILE="${root}/watched_anime.txt"
 ### END OF USER SETTINGS
 
 ### PREVIEW SETTINGS
