@@ -143,11 +143,11 @@ def clean_str(s):
 
 
 try:
-    copy(DB, f'{DB}.bak')
     with open(DB, 'r') as fp:
         anilist = json.load(fp)
 except FileNotFoundError:
     anilist = dict()
+copy(DB, f'{DB}.bak')
 
 try:
     with open(MALDB, 'r') as fp:
