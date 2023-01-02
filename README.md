@@ -50,4 +50,6 @@ PLAYER='mpv'
 |Ctrl-p  | Play current line with `$PLAYER`                             |
 |Ctrl-r  | Reload                                                       |
 
+---
+
 ![demo](demo.gif)
