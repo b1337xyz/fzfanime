@@ -26,6 +26,10 @@ PLAYER='mpv'
 
 ---
 
+![demo](demo.gif)
+
+---
+
 | Bind   | Description                                                  |
 |---     |---                                                           |
 |Alt-c   | Continue watching                                            |
@@ -50,7 +54,3 @@ PLAYER='mpv'
 |Ctrl-t  | Go to last item of the list                                  |
 |Ctrl-p  | Play current line with `$PLAYER`                             |
 |Ctrl-r  | Reload                                                       |
-
----
-
-![demo](demo.gif)
