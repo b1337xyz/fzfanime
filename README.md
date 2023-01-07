@@ -29,28 +29,27 @@ PLAYER='mpv'
 ![demo](demo.gif)
 
 ---
-
-| Bind   | Description                                                  |
-|---     |---                                                           |
-|Alt-c   | Continue watching                                            |
-|Alt-s   | Shuffle list                                                 |
-|Alt-a   | Add current line to `$WATCHED_FILE`                          |
-|Alt-d   | Remove current line from `$WATCHED_FILE`                     |
-|Alt-u   | Unlist entries from `$WATCHED_FILE`                          |
-|Ctrl-l  | Load `$ANIMEHIST`                                            |
-|Ctrl-w  | Load `$WATCHED_FILE`                                         |
-|Alt-p   | Select `path`                                                |
-|Alt-r   | Select `rated`                                               |
-|Ctrl-v  | Select `type`                                                |
-|Alt-b   | Sort by size                                                 |
-|Alt-l   | Sort by ctime (time of last modification of file)            |
-|Ctrl-e  | Sort by episodes                                             |
-|Ctrl-g  | Sort by genre                                                |
-|Ctrl-s  | Sort by score                                                |
-|Ctrl-y  | Sort by year                                                 |
-|Ctrl-a  | List only available entries                                  |
-|Ctrl-h  | List only entries rated Rx                                   |
-|Ctrl-b  | Go to first item of the list                                 |
-|Ctrl-t  | Go to last item of the list                                  |
-|Ctrl-p  | Play current line with `$PLAYER`                             |
-|Ctrl-r  | Reload                                                       |
+```
+alt-c   : Continue watching
+alt-s   : Shuffle list
+alt-a   : Add current line to `$WATCHED_FILE`
+alt-d   : Remove current line from `$WATCHED_FILE`
+alt-u   : Unlist entries from `$WATCHED_FILE`
+ctrl-l  : Load `$ANIMEHIST`
+ctrl-w  : Load `$WATCHED_FILE`
+alt-p   : Select `path`
+alt-r   : Select `rated`
+ctrl-v  : Select `type`
+alt-b   : Sort by size
+alt-l   : Sort by ctime (time of last modification of file)
+ctrl-e  : Sort by episodes
+ctrl-g  : Sort by genre
+ctrl-s  : Sort by score
+ctrl-y  : Sort by year
+ctrl-a  : List only available entries
+ctrl-h  : List only entries rated Rx
+ctrl-b  : Go to first item of the list
+ctrl-t  : Go to last item of the list
+ctrl-p  : Play current line with `$PLAYER`
+ctrl-r  : Reload
+```
