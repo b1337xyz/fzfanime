@@ -1,13 +1,13 @@
 ## IMPORTANT: Edit/Read the scripts before running them 
 
-### Notes:
+##### Notes:
 - The script expects that all files in `$ANIME_DIR` are symlinks
 - Before running `fzfanime.sh` create `$DB` and `$MALDB`
 - By default AniList is used as main database
 
 ---
 
-### Defaults
+##### Defaults
 ```bash
 ANIME_DIR=~/Videos/Anime    
 BACKEND=ueberzug    # ueberzug kitty
@@ -17,7 +17,7 @@ PLAYER='mpv'
 ```
 ---
 
-### Dependencies
+##### Dependencies
 - [fzf](https://github.com/junegunn/fzf)
 - [jq](https://github.com/stedolan/jq)
 - [ueberzug](https://github.com/b1337xyz/ueberzug) (optional)
