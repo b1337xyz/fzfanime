@@ -37,9 +37,9 @@ alt-d   : Remove current line from `$WATCHED_FILE`
 alt-u   : Unlist entries from `$WATCHED_FILE`
 ctrl-l  : Load `$ANIMEHIST`
 ctrl-w  : Load `$WATCHED_FILE`
+ctrl-v  : Select `type`
 alt-p   : Select `path`
 alt-r   : Select `rated`
-ctrl-v  : Select `type`
 alt-b   : Sort by size
 alt-l   : Sort by ctime (time of last modification of file)
 ctrl-e  : Sort by episodes
