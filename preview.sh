@@ -129,7 +129,10 @@ function preview {
 
     if grep -qxF "$1" "$WATCHED_FILE" 2>/dev/null ;then
         watched=1
-        [ "$BACKEND" != "viu" ] && printf '%'$WIDTH's \e[1;32m Watched\e[m\n\r' ' '
+        [ "$BACKEND" != "viu" ] &&
+            printf '%'$WIDTH's \e[1;32mWatched\e[m\n\r' ' '
+    else
+        echo
     fi
 
     case "$BACKEND" in
@@ -143,7 +146,12 @@ function preview {
                 "preview" "$WIDTH" "$HEIGHT" "distort" "$image" > "$UEBERZUG_FIFO"
         ;;
         feh)
-            cp "$image" "$FEH_IMAGE"
+            {
+                sleep .5
+                cp -f "$image" "$FEH_IMAGE"
+                sleep .5
+                touch "$FEH_IMAGE"
+            } &
         ;;
         viu)
             # https://github.com/atanunq/viu#from-source-recommended
@@ -175,9 +183,8 @@ function preview {
         ;;
     esac
 
-    [ "$BACKEND" != "viu" ] && for _ in {1..15};do echo ;done
+    [ "$BACKEND" != "viu" ] && for _ in {1..13};do echo ;done
     # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
     check_link "$1" &
-
 }
 export -f preview check_link

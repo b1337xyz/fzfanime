@@ -35,7 +35,7 @@ declare -r -x ANIME_DIR=~/Videos/Anime
 declare -r -x PLAYER='mpv --profile=fzfanime'
 declare -r -x DB="${root}/anilist.json"
 declare -r -x MALDB="${root}/maldb.json"
-declare -r -x BACKEND=feh # ueberzug kitty feh viu
+declare -r -x BACKEND=ueberzug # ueberzug kitty feh viu
 declare -r -x ANIMEHIST="${root}/anime_history.txt"
 declare -r -x WATCHED_FILE="${root}/watched_anime.txt"
 ### END OF USER SETTINGS
@@ -190,8 +190,12 @@ function main {
 export -f main play
 
 trap finalise EXIT HUP INT
-[ "$BACKEND" = "ueberzug" ] && [ -n "$DISPLAY" ] && start_ueberzug >/dev/null 2>&1
-[ "$BACKEND" = "feh" ] && [ -n "$DISPLAY" ] && start_feh >/dev/null 2>&1 &
+if [ -n "$DISPLAY" ];then
+    case "$BACKEND" in
+        ueberzug) start_ueberzug ;;
+        feh) start_feh & ;;
+    esac
+fi
 
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
