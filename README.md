@@ -2,7 +2,7 @@
 
 #### Notes:
 - The script expects that all files in `$ANIME_DIR` are symlinks
-- Before running `fzfanime.sh` create `$DB` and `$MALDB`
+- Before running `fzfanime.sh` create `$DB`
 - By default AniList is used as main database
 
 ---
