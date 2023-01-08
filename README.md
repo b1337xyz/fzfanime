@@ -10,7 +10,7 @@
 #### Defaults
 ```bash
 ANIME_DIR=~/Videos/Anime    
-BACKEND=ueberzug    # ueberzug kitty
+BACKEND=ueberzug    # ueberzug kitty feh viu
 DB=anilist.json     # generated with tools/update_anilist.py
 MALDB=maldb.json    # generated with tools/update_maldb.py
 PLAYER='mpv'                 

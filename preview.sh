@@ -174,10 +174,10 @@ function preview {
                 "0" "0" "$width" "$height" "$image" | "$W3MIMGDISPLAY"
         ;;
     esac
+
     [ "$BACKEND" != "viu" ] && for _ in {1..15};do echo ;done
     # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
     check_link "$1" &
-
 
 }
 export -f preview check_link
