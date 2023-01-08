@@ -121,10 +121,6 @@ function preview {
         printf '%'$WIDTH's Rated: %s\n'       ' ' "$rated"
         printf '%'$WIDTH's Score: %s\n'       ' ' "$score"
         printf '%'$WIDTH's Studios: %s\n'     ' ' "$studios"
-        # if [ -f "$MALDB" ];then
-        #     mal_score=$(jq --argjson k "\"$1\"" '.[$k]["score"]' "$MALDB")
-        #     printf '%'$WIDTH's Mal score: %s\n'   ' ' "$mal_score"
-        # fi
     fi
 
     if grep -qxF "$1" "$WATCHED_FILE" 2>/dev/null ;then
