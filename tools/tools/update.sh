@@ -26,7 +26,7 @@ do
 done
 
 echo updating...
-find -L /mnt/*/Anime -mindepth 1 -maxdepth 1 | while read -r i
+find -L /mnt/*/Anime -mindepth 1 -maxdepth 1 -type d | while read -r i
 do
     [ -h "${ANIME_DIR}/${i##*/}" ] ||
         ln -fvrs "$i" "${ANIME_DIR}"
