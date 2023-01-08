@@ -109,7 +109,7 @@ function preview {
         # check_link "$1"
         return 0
     fi
-
+    watched=$(grep -xF "$1" "$WATCHED_FILE" || true)
     if [ "$BACKEND" != "viu" ];then
         # [ "${#title}"  -gt 35 ] && title=${title::35}...
         # [ "${#genres}" -gt 35 ] && genres=${genres::35}...
@@ -121,15 +121,14 @@ function preview {
         printf '%'$WIDTH's Rated: %s\n'       ' ' "$rated"
         printf '%'$WIDTH's Score: %s\n'       ' ' "$score"
         printf '%'$WIDTH's Studios: %s\n'     ' ' "$studios"
+
+        if [ "$watched" ];then
+            printf '%'$WIDTH's \e[1;32mWatched\e[m\n\r' ' '
+        else
+            echo
+        fi
     fi
 
-    if grep -qxF "$1" "$WATCHED_FILE" 2>/dev/null ;then
-        watched=1
-        [ "$BACKEND" != "viu" ] &&
-            printf '%'$WIDTH's \e[1;32mWatched\e[m\n\r' ' '
-    else
-        echo
-    fi
 
     case "$BACKEND" in
         kitty)
@@ -166,7 +165,7 @@ function preview {
             viu -s -w "$WIDTH" -h "$HEIGHT" "$image" | while read -r str; do
                 printf '%s ' "$str"
                 [ "$i" -lt "${#arr[@]}" ] && printf '%s ' "${arr[i]}"
-                [ "$i" -eq "${#arr[@]}" ] && [ "$watched" ] && printf '\033[1;32m Watched \033[m'
+                [ "$i" -eq "${#arr[@]}" ] && [ -n "$watched" ] && printf '\033[1;32m Watched \033[m'
                 printf '\n'
                 i=$((i+1))
             done

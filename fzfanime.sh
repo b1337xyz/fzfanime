@@ -34,7 +34,7 @@ source "${root}/preview.sh" || {
 declare -r -x ANIME_DIR=~/Videos/Anime
 declare -r -x PLAYER='mpv --profile=fzfanime'
 declare -r -x DB="${root}/anilist.json"
-declare -r -x BACKEND=ueberzug # ueberzug kitty feh viu
+declare -r -x BACKEND=viu # ueberzug kitty feh viu
 declare -r -x ANIMEHIST="${root}/anime_history.txt"
 declare -r -x WATCHED_FILE="${root}/watched_anime.txt"
 ### END OF USER SETTINGS
