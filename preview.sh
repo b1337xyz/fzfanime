@@ -150,7 +150,7 @@ function preview {
         ;;
         viu)
             # https://github.com/atanunq/viu#from-source-recommended
-            # `tput cup 0 0`, `viu -a -x 0 -y 0` does not work so i had to do this :(
+            # `tput cup 0 0` and `viu -a -x 0 -y 0` does not work so i had to do this :(
 
             arr=(
                 "$title"
@@ -164,8 +164,11 @@ function preview {
             i=0
             viu -s -w "$WIDTH" -h "$HEIGHT" "$image" | while read -r str; do
                 printf '%s ' "$str"
-                [ "$i" -lt "${#arr[@]}" ] && printf '%s ' "${arr[i]}"
-                [ "$i" -eq "${#arr[@]}" ] && [ -n "$watched" ] && printf '\033[1;32m Watched \033[m'
+                if [ "$i" -lt "${#arr[@]}" ]; then
+                    printf '%s ' "${arr[i]}"
+                elif [ "$i" -eq "${#arr[@]}" ]; then
+                    [ -n "$watched" ] && printf '\033[1;32m Watched \033[m'
+                fi
                 printf '\n'
                 i=$((i+1))
             done
