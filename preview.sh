@@ -5,12 +5,21 @@ function start_ueberzug {
     tail --follow "$UEBERZUG_FIFO" | ueberzug layer --parser json 2>/dev/null &
 }
 function start_feh {
-    sleep 1
+    # wait for the preview 
+    while ! [ -f "$FEH_IMAGE" ];do sleep 0.3; done
+
+    # get current focused window
     active_window_id=$(xdotool getactivewindow)
+
+    # get x and y positions
     read -r x y < <(xwininfo -id "$active_window_id" |
         sed -n 's/.*Corners:\s*\([+-][0-9]*\)\([+-][0-9]*\).*/\1 \2/p')
-    feh -Y -N -x -Z --scale-down -g "255x380${x}${y}" \
+
+    feh --hide-pointer --no-menus --borderless --auto-zoom \
+        --scale-down --geometry "255x380${x}${y}" \
         --image-bg black "$FEH_IMAGE" &
+
+    # unfocus feh
     sleep 0.5; xdotool windowactivate "$active_window_id"
 }
 function finalise {
