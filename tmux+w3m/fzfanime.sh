@@ -17,11 +17,26 @@
 #         "type": "TV",
 #         "rated": "R+",
 #         "duration": 25,
-#         "studios": ["Sunrise", ...],
 #       }
 #     }, ...
 
-set -eo pipefail
+
+### USER SETTINGS
+
+declare -r -x ANIME_DIR=~/Videos/Anime
+declare -r -x PLAYER='mpv --profile=fzfanime'
+declare -r -x DB=~/.scripts/python/myanimedb/anilist.json
+declare -r -x MALDB=~/.scripts/python/myanimedb/maldb.json
+declare -r -x ANIMEHIST=~/.cache/anime_history.txt
+declare -r -x WATCHED_FILE=~/.cache/watched_anime.txt
+declare -r -x MPVHIST=~/.cache/mpv/mpvhistory.log
+[ "$DISPLAY" ] && declare -r -x BACKEND=w3m # ueberzug kitty
+
+### END OF USER SETTINGS
+
+# set -eo pipefail
+
+[ -d "$ANIME_DIR" ] || { printf '%s not found\n' "${ANIME_DIR}"; exit 1; }
 
 root=$(realpath "$0") root=${root%/*}
 # shellcheck disable=SC1091
@@ -30,29 +45,27 @@ source "${root}/preview.sh" || {
     exit 1;
 }
 
-### USER SETTINGS
-declare -r -x ANIME_DIR=~/Videos/Anime
-declare -r -x PLAYER='mpv --profile=fzfanime'
-declare -r -x DB="${root}/anilist.json"
-declare -r -x MALDB="${root}/maldb.json"
-declare -r -x BACKEND=feh # ueberzug kitty feh viu
-declare -r -x ANIMEHIST="${root}/anime_history.txt"
-declare -r -x WATCHED_FILE="${root}/watched_anime.txt"
-### END OF USER SETTINGS
+declare -r -x PREVIEW_FIFO=/tmp/fzfanime.fifo
+if [ "$PREVIEW_MODE" ];then
+    sleep 1
+    [ "$BACKEND" = "ueberzug" ] && start_ueberzug >/dev/null 2>&1
+    while :;do
+        while read -r i; do
+            [ "$i" = "die" ] && exit 0
+            preview "$i"
+        done < "$PREVIEW_FIFO"
+    done
+    exit 0
+fi
 
-### PREVIEW SETTINGS
-declare -r -x W3MIMGDISPLAY=/usr/lib/w3m/w3mimgdisplay
-declare -r -x UEBERZUG_FIFO=$(mktemp --dry-run --suffix "fzf-$$-ueberzug")
-declare -r -x WIDTH=32 # image width
-declare -r -x HEIGHT=20
-declare -r -x MPVHIST=~/.cache/mpv/mpvhistory.log
-declare -r -x CACHE_DIR=~/.cache/fzfanime_preview
-declare -r -x FEH_IMAGE=/tmp/.fzfanime.jpg
-### END OF PREVIEW SETTINGS
+mkfifo "$PREVIEW_FIFO"
+tmux split-window -h -d -l '53%' -e "PREVIEW_MODE=1" "$0"
+tmux swap-pane -D
 
-
-[ -d "$CACHE_DIR" ] || mkdir -p "$CACHE_DIR"
-[ -d "$ANIME_DIR" ] || { printf '%s not found\n' "${ANIME_DIR}"; exit 1; }
+preview_fifo() {
+    echo "$1" | tee "$PREVIEW_FIFO"
+}
+export -f preview_fifo
 
 declare -r -x mainfile=$(mktemp --dry-run) 
 declare -r -x tempfile=$(mktemp --dry-run)
@@ -61,7 +74,6 @@ declare -r -x modefile=$(mktemp --dry-run)
 function play {
     [ -e "${ANIME_DIR}/$1" ] || return 1
     echo "$1" >> "$ANIMEHIST"
-    # shellcheck disable=SC2086
     if command -v devour >/dev/null 2>&1;then
         devour $PLAYER "${ANIME_DIR}/$1" >/dev/null 2>&1
     else
@@ -167,9 +179,9 @@ function main {
                         'keys[] as $k | select(.[$k][$mode] == $v) | $k' "$DB") "$mainfile"
                 fi | tee "$tempfile"
             elif [ "$curr_mode" = "path" ];then
-                grep -xFf <(stat -c '%N' "$ANIME_DIR"/* | awk -F' -> ' -v mode="$2" \
-                    '$0 ~ mode {split($1, a, "/"); x=a[length(a)]; print substr(x, 1, length(x) - 1) }') \
-                    "$mainfile" | tee "$tempfile"
+                stat -c '%N' "$ANIME_DIR"/* | awk -F' -> ' -v mode="$2" \
+                    '$0 ~ mode {split($1, a, "/"); x=a[length(a)]; print substr(x, 1, length(x) - 1) }' |
+                    tee "$tempfile"
             else
                 play "$2"
                 cat "$mainfile"
@@ -190,16 +202,14 @@ function main {
 export -f main play
 
 trap finalise EXIT HUP INT
-[ "$BACKEND" = "ueberzug" ] && [ -n "$DISPLAY" ] && start_ueberzug >/dev/null 2>&1
-[ "$BACKEND" = "feh" ] && [ -n "$DISPLAY" ] && start_feh >/dev/null 2>&1 &
 
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
 main "$@" | fzf -e --no-sort --color dark \
+    --preview='preview_fifo {}' \
+    --preview-window='down,border-none,1' \
     --border none --no-separator --prompt "NORMAL " \
-    --preview 'preview {}' \
-    --preview-window 'left:53%:border-none' \
-    --header "^p ^s ^l ^r ^h ^w ^a ^e ^g ^v${n}A-p A-u A-c A-a A-d A-s A-b" \
+    --header "^p ^s ^l ^r ^w ^o ^a ^e ^g ^v${n}A-p A-u A-c A-a A-d A-s" \
     --bind 'ctrl-t:last' \
     --bind 'ctrl-b:first' \
     --bind 'enter:reload(main select {})+clear-query' \

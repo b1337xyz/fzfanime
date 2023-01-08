@@ -4,6 +4,15 @@ function start_ueberzug {
     mkfifo "${UEBERZUG_FIFO}"
     tail --follow "$UEBERZUG_FIFO" | ueberzug layer --parser json 2>/dev/null &
 }
+function start_feh {
+    sleep 1
+    active_window_id=$(xdotool getactivewindow)
+    read -r x y < <(xwininfo -id "$active_window_id" |
+        sed -n 's/.*Corners:\s*\([+-][0-9]*\)\([+-][0-9]*\).*/\1 \2/p')
+    feh -Y -N -x -Z --scale-down -g "255x380${x}${y}" \
+        --image-bg black "$FEH_IMAGE" &
+    sleep 0.5; xdotool windowactivate "$active_window_id"
+}
 function finalise {
     jobs -p | xargs -r kill 2>/dev/null || true
     rm "$tempfile" "$mainfile" "$modefile" 2>/dev/null || true
@@ -11,6 +20,7 @@ function finalise {
         printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
         rm "$UEBERZUG_FIFO" 2>/dev/null
     fi
+    [ -f "$FEH_IMAGE" ] && rm "$FEH_IMAGE"
 }
 function check_link {
     p=$(readlink -m "${ANIME_DIR}/$1")
@@ -91,27 +101,27 @@ function preview {
         return 0
     fi
 
-    # [ "${#title}"  -gt 35 ] && title=${title::35}...
-    # [ "${#genres}" -gt 35 ] && genres=${genres::35}...
+    if [ "$BACKEND" != "viu" ];then
+        # [ "${#title}"  -gt 35 ] && title=${title::35}...
+        # [ "${#genres}" -gt 35 ] && genres=${genres::35}...
 
-    printf '%'$WIDTH's %s\n'              ' ' "$title"
-    printf '%'$WIDTH's Type: %s\n'        ' ' "${_type:-Unknown}"
-    printf '%'$WIDTH's Genre: %s\n'       ' ' "$genres"
-    printf '%'$WIDTH's Episodes: %s\n'    ' ' "$episodes"
-    printf '%'$WIDTH's Rated: %s\n'       ' ' "$rated"
-    printf '%'$WIDTH's Score: %s\n'       ' ' "$score"
-    printf '%'$WIDTH's Studios: %s\n'     ' ' "$studios"
-    # if [ -f "$MALDB" ];then
-    #     mal_score=$(jq --argjson k "\"$1\"" '.[$k]["score"]' "$MALDB")
-    #     printf '%'$WIDTH's Mal score: %s\n'   ' ' "$mal_score"
-    # fi
+        printf '%'$WIDTH's %s\n'              ' ' "$title"
+        printf '%'$WIDTH's Type: %s\n'        ' ' "${_type:-Unknown}"
+        printf '%'$WIDTH's Genre: %s\n'       ' ' "$genres"
+        printf '%'$WIDTH's Episodes: %s\n'    ' ' "$episodes"
+        printf '%'$WIDTH's Rated: %s\n'       ' ' "$rated"
+        printf '%'$WIDTH's Score: %s\n'       ' ' "$score"
+        printf '%'$WIDTH's Studios: %s\n'     ' ' "$studios"
+        # if [ -f "$MALDB" ];then
+        #     mal_score=$(jq --argjson k "\"$1\"" '.[$k]["score"]' "$MALDB")
+        #     printf '%'$WIDTH's Mal score: %s\n'   ' ' "$mal_score"
+        # fi
+    fi
 
-    grep -qxF "$1" "$WATCHED_FILE" 2>/dev/null &&
-        printf '%'$WIDTH's \e[1;32mWatched\e[m' ' '
-
-    for _ in {1..15};do echo ;done
-    # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
-    check_link "$1" &
+    if grep -qxF "$1" "$WATCHED_FILE" 2>/dev/null ;then
+        watched=1
+        [ "$BACKEND" != "viu" ] && printf '%'$WIDTH's \e[1;32m Watched\e[m\n\r' ' '
+    fi
 
     case "$BACKEND" in
         kitty)
@@ -123,6 +133,31 @@ function preview {
             printf '{"action": "add", "identifier": "%s", "x": 0, "y": 0, "width": %d, "height": %d, "scaler": "%s", "path": "%s"}\n' \
                 "preview" "$WIDTH" "$HEIGHT" "distort" "$image" > "$UEBERZUG_FIFO"
         ;;
+        feh)
+            cp "$image" "$FEH_IMAGE"
+        ;;
+        viu)
+            # https://github.com/atanunq/viu#from-source-recommended
+            # `tput cup 0 0`, `viu -a -x 0 -y 0` does not work so i had to do this :(
+
+            arr=(
+                "$title"
+                "Type: ${_type:-Unknown}"
+                "Genre: $genres"
+                "Episodes: $episodes"
+                "Rated: $rated"
+                "Score: $score"
+                "Studios: $studios"
+            )
+            i=0
+            viu -s -w "$WIDTH" -h "$HEIGHT" "$image" | while read -r str; do
+                printf '%s ' "$str"
+                [ "$i" -lt "${#arr[@]}" ] && printf '%s ' "${arr[i]}"
+                [ "$i" -eq "${#arr[@]}" ] && [ "$watched" ] && printf '\033[1;32m Watched \033[m'
+                printf '\n'
+                i=$((i+1))
+            done
+        ;;
         w3m)
             # https://github.com/junegunn/fzf/issues/2551
             read -r width height < <(printf '5;%s' "$image" | "$W3MIMGDISPLAY")
@@ -130,5 +165,10 @@ function preview {
                 "0" "0" "$width" "$height" "$image" | "$W3MIMGDISPLAY"
         ;;
     esac
+    [ "$BACKEND" != "viu" ] && for _ in {1..15};do echo ;done
+    # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
+    check_link "$1" &
+
+
 }
 export -f preview check_link
