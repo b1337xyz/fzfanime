@@ -47,6 +47,8 @@ declare -r -x HEIGHT=20
 declare -r -x MPVHIST=~/.cache/mpv/mpvhistory.log
 declare -r -x CACHE_DIR=~/.cache/fzfanime_preview
 declare -r -x FEH_IMAGE=/tmp/.fzfanime.jpg
+declare -r -x FEH_WIDTH=255
+declare -r -x FEH_HEIGHT=380
 ### END OF PREVIEW SETTINGS
 
 

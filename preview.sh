@@ -16,7 +16,7 @@ function start_feh {
         sed -n 's/.*Corners:\s*\([+-][0-9]*\)\([+-][0-9]*\).*/\1 \2/p')
 
     feh --hide-pointer --no-menus --borderless --auto-zoom \
-        --scale-down --geometry "255x380${x}${y}" \
+        --scale-down --geometry "${FEH_WIDTH}x${FEH_HEIGHT}${x}${y}" \
         --image-bg black "$FEH_IMAGE" &
 
     # unfocus feh
