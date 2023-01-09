@@ -102,6 +102,7 @@ def search_by_id(mal_id):
     cache[mal_id] = data
     with open(CACHE, 'w') as fp:
         json.dump(cache, fp)
+    copy(CACHE, f'{CACHE}.bak')
 
     sleep(0.5)
     return data
