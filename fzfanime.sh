@@ -34,7 +34,7 @@ source "${root}/preview.sh" || {
 declare -r -x ANIME_DIR=~/Videos/Anime
 declare -r -x PLAYER='mpv --profile=fzfanime'
 declare -r -x DB="${root}/anilist.json"
-declare -r -x BACKEND=ueberzug # ueberzug kitty feh viu
+declare -r -x BACKEND=ueberzug  # ueberzug kitty feh viu
 declare -r -x ANIMEHIST="${root}/anime_history.txt"
 declare -r -x WATCHED_FILE="${root}/watched_anime.txt"
 ### END OF USER SETTINGS
@@ -46,7 +46,7 @@ declare -r -x WIDTH=32 # image width
 declare -r -x HEIGHT=20
 declare -r -x MPVHIST=~/.cache/mpv/mpvhistory.log
 declare -r -x CACHE_DIR=~/.cache/fzfanime_preview
-declare -r -x FEH_IMAGE=/tmp/.fzfanime.jpg
+declare -r -x FEH_FILE=/tmp/.fzfanime.feh
 declare -r -x FEH_WIDTH=255
 declare -r -x FEH_HEIGHT=380
 ### END OF PREVIEW SETTINGS

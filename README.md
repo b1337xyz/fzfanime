@@ -20,7 +20,7 @@ PLAYER='mpv'
 - [fzf](https://github.com/junegunn/fzf)
 - [jq](https://github.com/stedolan/jq)
 - [ueberzug](https://github.com/b1337xyz/ueberzug) (optional) image preview
-- [viu](https://github.com/atanunq/viu) (optional) image preview
+- [viu](https://github.com/atanunq/viu#from-source-recommended) (optional) image preview
 - [feh](https://feh.finalrewind.org/) (optional) image preview
   - [xdotool](https://www.semicomplete.com/projects/xdotool/) 
   - `xwininfo` (`xorg-xwininfo` on Arch btw)

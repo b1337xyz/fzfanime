@@ -6,7 +6,7 @@ function start_ueberzug {
 }
 function start_feh {
     # wait for the preview 
-    while ! [ -f "$FEH_IMAGE" ];do sleep 0.3; done
+    while ! [ -f "$FEH_FILE" ];do sleep 0.3; done
 
     # get current focused window
     active_window_id=$(xdotool getactivewindow)
@@ -17,7 +17,7 @@ function start_feh {
 
     feh --hide-pointer --no-menus --borderless --auto-zoom \
         --scale-down --geometry "${FEH_WIDTH}x${FEH_HEIGHT}${x}${y}" \
-        --image-bg black "$FEH_IMAGE" &
+        --image-bg black --reload 0.3 --filelist "$FEH_FILE" &
 
     # unfocus feh
     sleep 0.5; xdotool windowactivate "$active_window_id"
@@ -33,16 +33,13 @@ function finalise {
 }
 function check_link {
     p=$(readlink -m "${ANIME_DIR}/$1")
-    # p=$(stat -c '%N' "${ANIME_DIR}/$1" | awk -F' -> ' '{print substr($2, 2, length($2)-2)}')
     x=$p
-    # [ "${#x}" -gt "$((COLUMNS - 1))" ] && x=${x::$((COLUMNS - 4))}...
     printf '%s\n' "$x"
 
     if [ -f "$MPVHIST" ];then
         last_ep=$(grep -F "/${1}/" "$MPVHIST" | tail -n1)
         last_ep=${last_ep##*/}
         if [ -f "${p}/${last_ep}" ];then
-            # [ "${#last_ep}" -gt "$((COLUMNS - 15))" ] && last_ep=${last_ep::$((COLUMNS - 15))}...
             printf 'Continue: \e[1;32m%s\e[m\n' "$last_ep"
         fi
     fi
@@ -72,8 +69,6 @@ function check_link {
         n=4
         for ((i=0;i<"${#files[@]}";i++));do
             x=${files[i]}
-            # [ "${#x}" -gt "$((COLUMNS - 1))" ] && x=${x::$((COLUMNS - 4))}...
-
             if [ "$i" -lt "$n" ] || [ "${#files[@]}" -le $((n*2)) ];then
                 printf '%s\n' "$x"
             elif [ "$i" -ge $(( ${#files[@]} - n )) ];then
@@ -111,9 +106,6 @@ function preview {
     fi
     watched=$(grep -xF "$1" "$WATCHED_FILE" || true)
     if [ "$BACKEND" != "viu" ];then
-        # [ "${#title}"  -gt 35 ] && title=${title::35}...
-        # [ "${#genres}" -gt 35 ] && genres=${genres::35}...
-
         printf '%'$WIDTH's %s\n'              ' ' "$title"
         printf '%'$WIDTH's Type: %s\n'        ' ' "${_type:-Unknown}"
         printf '%'$WIDTH's Genre: %s\n'       ' ' "$genres"
@@ -141,17 +133,11 @@ function preview {
                 "preview" "$WIDTH" "$HEIGHT" "distort" "$image" > "$UEBERZUG_FIFO"
         ;;
         feh)
-            {
-                sleep .5
-                cp -f "$image" "$FEH_IMAGE"
-                sleep .5
-                touch "$FEH_IMAGE"
-            } &
+            echo "$image" > "$FEH_FILE"
         ;;
         viu)
             # https://github.com/atanunq/viu#from-source-recommended
             # `tput cup 0 0` and `viu -a -x 0 -y 0` does not work so i had to do this :(
-
             arr=(
                 "$title"
                 "Type: ${_type:-Unknown}"
