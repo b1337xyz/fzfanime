@@ -42,7 +42,7 @@ declare -r -x WATCHED_FILE="${root}/watched_anime.txt"
 ### PREVIEW SETTINGS
 declare -r -x W3MIMGDISPLAY=/usr/lib/w3m/w3mimgdisplay
 declare -r -x UEBERZUG_FIFO=$(mktemp --dry-run --suffix "fzf-$$-ueberzug")
-declare -r -x WIDTH=32 # image width
+declare -r -x WIDTH=32  # image width
 declare -r -x HEIGHT=20
 declare -r -x MPVHIST=~/.cache/mpv/mpvhistory.log
 declare -r -x CACHE_DIR=~/.cache/fzfanime_preview
