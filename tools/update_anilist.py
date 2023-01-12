@@ -23,6 +23,7 @@ api_query = '''
 query ($id: Int, $page: Int, $perPage: Int, $search: String) {
     Page (page: $page, perPage: $perPage) {
         media (id: $id, search: $search, sort: SEARCH_MATCH, type: ANIME) {
+            id
             idMal
             isAdult
             title {
@@ -52,6 +53,7 @@ api_query_by_malid = '''
 query ($id: Int, $idMal: Int, $page: Int, $perPage: Int) {
     Page (page: $page, perPage: $perPage) {
         media (id: $id, idMal: $idMal, sort: SEARCH_MATCH, type: ANIME) {
+            id
             idMal
             isAdult
             title {
@@ -239,6 +241,7 @@ for idx, inp in enumerate(lst):
             studios = maldb[inp]['studios']
 
         anilist[inp] = {
+            'id': media['id'],
             'idMal': media['idMal'],
             'isAdult': media['isAdult'],
             'title': clean_str(media['title']['romaji']),
