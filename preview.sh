@@ -31,7 +31,7 @@ function finalise {
     fi
     [ -f "$FEH_IMAGE" ] && rm "$FEH_IMAGE"
 }
-function check_link {
+function show_files {
     p=$(readlink -m "${ANIME_DIR}/$1")
     x=$p
     printf '%s\n' "$x"
@@ -101,7 +101,7 @@ function preview {
 
         printf "404 - preview not found\n\n"
         # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
-        # check_link "$1"
+        # show_files "$1"
         return 0
     fi
     watched=$(grep -xF "$1" "$WATCHED_FILE" || true)
@@ -171,11 +171,10 @@ function preview {
         ;;
     esac
 
-    
     if ! [[ "$BACKEND" =~ viu|chafa ]];then
         for _ in {1..13};do echo ;done
     fi
     # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
-    check_link "$1" &
+    show_files "$1" &
 }
-export -f preview check_link
+export -f preview show_files
