@@ -105,7 +105,7 @@ function preview {
         return 0
     fi
     watched=$(grep -xF "$1" "$WATCHED_FILE" || true)
-    if [ "$BACKEND" != "viu" ];then
+    if ! [[ "$BACKEND" =~ viu|chafa ]];then
         printf '%'$WIDTH's %s\n'              ' ' "$title"
         printf '%'$WIDTH's Type: %s\n'        ' ' "${_type:-Unknown}"
         printf '%'$WIDTH's Genre: %s\n'       ' ' "$genres"
@@ -135,7 +135,7 @@ function preview {
         feh)
             echo "$image" > "$FEH_FILE"
         ;;
-        viu)
+        viu|chafa)
             # https://github.com/atanunq/viu#from-source-recommended
             # `tput cup 0 0` and `viu -a -x 0 -y 0` does not work so i had to do this :(
             arr=(
@@ -148,7 +148,11 @@ function preview {
                 "Studios: $studios"
             )
             i=0
-            viu -s -w "$WIDTH" -h "$HEIGHT" "$image" | while read -r str; do
+            if [ "$BACKEND" = "chafa"  ];then
+                chafa --size="${WIDTH}x${HEIGHT}" "$image"
+            else
+                viu -s -w "$WIDTH" -h "$HEIGHT" "$image"
+            fi | while read -r str; do
                 printf '%s ' "$str"
                 if [ "$i" -lt "${#arr[@]}" ]; then
                     printf '%s ' "${arr[i]}"
@@ -167,7 +171,10 @@ function preview {
         ;;
     esac
 
-    [ "$BACKEND" != "viu" ] && for _ in {1..13};do echo ;done
+    
+    if ! [[ "$BACKEND" =~ viu|chafa ]];then
+        for _ in {1..13};do echo ;done
+    fi
     # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
     check_link "$1" &
 }

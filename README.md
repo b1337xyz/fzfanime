@@ -10,7 +10,7 @@
 #### Defaults
 ```bash
 ANIME_DIR=~/Videos/Anime    
-BACKEND=ueberzug    # ueberzug kitty feh viu
+BACKEND=ueberzug    # ueberzug kitty feh viu chafa
 DB=anilist.json     # generated with tools/update_anilist.py
 PLAYER='mpv'                 
 ```
@@ -21,6 +21,7 @@ PLAYER='mpv'
 - [jq](https://github.com/stedolan/jq)
 - [ueberzug](https://github.com/b1337xyz/ueberzug) (optional) image preview
 - [viu](https://github.com/atanunq/viu#from-source-recommended) (optional) image preview
+- [chafa](https://hpjansson.org/chafa/) (optional) image preview
 - [feh](https://feh.finalrewind.org/) (optional) image preview
   - [xdotool](https://www.semicomplete.com/projects/xdotool/) 
   - `xwininfo` (`xorg-xwininfo` on Arch btw)
