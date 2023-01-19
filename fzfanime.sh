@@ -61,6 +61,11 @@ declare -r -x modefile=$(mktemp --dry-run)
 
 function play {
     [ -e "${ANIME_DIR}/$1" ] || return 1
+
+    # save some cpu usage... maybe
+    [ "$BACKEND" = ueberzug ] && 
+        printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
+
     echo "$1" >> "$ANIMEHIST"
     # shellcheck disable=SC2086
     if command -v devour >/dev/null 2>&1;then
