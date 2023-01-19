@@ -13,7 +13,6 @@ ROOT = os.path.dirname(os.path.realpath(__file__))
 DB_PATH = os.path.join(ROOT, 'maldb.json')
 ANIME_DIR = '{}/Videos/Anime'.format(HOME)
 IMG_DIR = '{}/.cache/mal_covers'.format(HOME)
-CACHE = '{}/.cache/jikan.json'.format(HOME)
 API_URL = 'https://api.jikan.moe/v4/anime'
 
 
@@ -26,22 +25,10 @@ def clean_str(s):
 
 
 def request(url):
-    try:
-        with open(CACHE, 'r') as fp:
-            cache = json.load(fp)
-    except FileNotFoundError:
-        cache = dict()
-
-    if url in cache:
-        return cache[url]
-
     print(url)
     with urlopen(url, timeout=15) as data:
         data = json.load(data)['data']
 
-    cache[url] = data
-    with open(CACHE, 'w') as fp:
-        json.dump(cache, fp)
     sleep(0.5)
     return data
 
@@ -61,7 +48,7 @@ def fuzzy_sort(target, data):
     i = [
         i[-1] for i in process.extract(
             target,
-            {i: d['title'] for i,d in enumerate(data)},
+            {i: d['title'] for i, d in enumerate(data)},
             limit=len(data)
         )
     ][0]
@@ -154,7 +141,6 @@ def main():
             json.dump(maldb, fp)
 
 
-if __name__  == '__main__':
+if __name__ == '__main__':
     main()
-    copy(CACHE, f'{CACHE}.bak')
     copy(DB_PATH, f'{DB_PATH}.bak')

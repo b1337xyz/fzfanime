@@ -13,7 +13,6 @@ MALDB = os.path.join(ROOT, 'maldb.json')
 DB = os.path.join(ROOT, 'anilist.json')
 ANIME_DIR = '{}/Videos/Anime'.format(HOME)
 IMG_DIR = '{}/.cache/anilist_covers'.format(HOME)
-CACHE = '{}/.cache/anilist.json'.format(HOME)
 API_URL = 'https://graphql.anilist.co'
 
 if not os.path.exists(IMG_DIR):
@@ -82,15 +81,6 @@ query ($id: Int, $idMal: Int, $page: Int, $perPage: Int) {
 
 
 def search_by_id(mal_id):
-    try:
-        with open(CACHE, 'r') as fp:
-            cache = json.load(fp)
-    except FileNotFoundError:
-        cache = dict()
-
-    if mal_id in cache:
-        return cache[mal_id]
-
     print(f'Searching by MAL ID: {mal_id}')
     variables = {
         'idMal': int(mal_id),
@@ -101,25 +91,11 @@ def search_by_id(mal_id):
         'query': api_query_by_malid, 'variables': variables
     })
     data = r.json()
-    cache[mal_id] = data
-    with open(CACHE, 'w') as fp:
-        json.dump(cache, fp)
-    copy(CACHE, f'{CACHE}.bak')
-
     sleep(0.5)
     return data
 
 
 def search(query):
-    try:
-        with open(CACHE, 'r') as fp:
-            cache = json.load(fp)
-    except FileNotFoundError:
-        cache = dict()
-
-    if query in cache:
-        return cache[query]
-
     print(f'Searching by query: {query}')
     variables = {
         'search': query,
@@ -130,10 +106,6 @@ def search(query):
         'query': api_query, 'variables': variables
     })
     data = r.json()
-    cache[query] = data
-    with open(CACHE, 'w') as fp:
-        json.dump(cache, fp)
-    sleep(0.7)
     return data
 
 
@@ -209,7 +181,7 @@ for idx, inp in enumerate(lst):
             i = [
                 i[-1] for i in process.extract(
                     query,
-                    {i: d['title']['romaji'] for i,d in enumerate(results)},
+                    {i: d['title']['romaji'] for i, d in enumerate(results)},
                     limit=len(results)
                 ) if i
             ]
@@ -225,7 +197,6 @@ for idx, inp in enumerate(lst):
             r = requests.get(url)
             with open(image, 'wb') as fp:
                 fp.write(r.content)
-
 
         year = media['startDate']['year']
         episodes = media['episodes']
