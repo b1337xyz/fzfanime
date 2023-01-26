@@ -14,9 +14,9 @@ Options:
 
 Notes:
     - --option=value is not supported, use --option value
-    - The script expects that all files in "\$ANIME_DIR" are symlinks
-    - Before running ${0##*/} create "\$DB"
-    - \$DB generated using Anilist APIv2 -> https://anilist.gitbook.io/anilist-apiv2-docs
+    - The script expects that all files in "$ANIME_DIR" are symlinks
+    - Before running fzfanime.sh create "$DB"
+    - $DB generated using Anilist APIv2 -> https://anilist.gitbook.io/anilist-apiv2-docs
       and Jikan APIv4 -> https://api.jikan.moe/v4/anime
     - By default AniList is used as main database
 ```
@@ -29,16 +29,16 @@ Notes:
     "isAdult": false,
     "title": "Anime",
     "year": 1998,
-    "genres": ["Action"],
+    "genres": ["Action", ...],
     "episodes": 24,
     "score": 74,
     "image": "<local path to the image>",
     "type": "TV",
     "rated": "R+",
     "duration": 25,
-    "studios": ["Sunrise"],
+    "studios": ["Sunrise", ...],
   }
-}, // ...
+}, ...
 ```
 Generated with [tools/update_anilist](https://github.com/b1337xyz/fzfanime/blob/main/tools/update_anilist.py) and [tools/update_maldb.py](https://github.com/b1337xyz/fzfanime/blob/main/tools/update_maldb.py)
 
