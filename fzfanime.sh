@@ -2,24 +2,6 @@
 # shellcheck disable=SC2155
 # Notes:
 #   - grep -xFf <file1> <file2> ...  will keep the order of the second file
-#   - $DB generated using Anilist APIv2 -> https://anilist.gitbook.io/anilist-apiv2-docs
-#     and Jikan APIv4 -> https://api.jikan.moe/v4/anime
-#     {
-#       "<Anime> (1998)": {
-#         "idMal": 400,
-#         "isAdult": false,
-#         "title": "Anime",
-#         "year": 1998,
-#         "genres": ["Action", ...],
-#         "episodes": 24,
-#         "score": 74,
-#         "image": "<local path to the image>",
-#         "type": "TV",
-#         "rated": "R+",
-#         "duration": 25,
-#         "studios": ["Sunrise", ...],
-#       }
-#     }, ...
 
 set -eo pipefail
 
@@ -30,11 +12,46 @@ source "${root}/preview.sh" || {
     exit 1;
 }
 
+function help {
+    cat << EOF
+Usage: ${0##*/} [options ...]
+
+Options:
+    -d --dir <dir>          directory (default: ~/Videos/Anime)
+    -p --player <player>    video player (default: mpv)
+    -b --backend <backend>  image preview (default: ueberzug) (available: ueberzug kitty feh viu chafa)
+    -f --fallback <backend> if \$DISPLAY is unset fallback to <backend> (default: viu)
+    -h --help               show this message
+
+Notes:
+    - --option=value is not supported, use --option value
+    - The script expects that all files in "\$ANIME_DIR" are symlinks
+    - Before running ${0##*/} create "\$DB"
+    - \$DB generated using Anilist APIv2 -> https://anilist.gitbook.io/anilist-apiv2-docs
+      and Jikan APIv4 -> https://api.jikan.moe/v4/anime
+    - By default AniList is used as main database
+
+EOF
+    exit 0
+}
+
+while [ $# -gt 0 ];do
+    case "$1" in
+        -d|--dir) shift; anime_dir=$1 ;;
+        -p|--player) shift; player=$1 ;;
+        -b|--backend) shift; backend=$1 ;;
+        -f|--fallback) shift; fallback=$1 ;;
+        -*) help ;;
+    esac
+    shift
+done
+[ -z "$DISPLAY" ] && hash "${fallback:-viu}" && backend=${fallback:-viu}
+
 ### USER SETTINGS
-declare -r -x ANIME_DIR=~/Videos/Anime
-declare -r -x PLAYER='mpv --profile=fzfanime'
+declare -r -x ANIME_DIR=${anime_dir:-~/Videos/Anime}
+declare -r -x PLAYER=${player:-'mpv --profile=fzfanime'}
 declare -r -x DB="${root}/anilist.json"
-declare -r -x BACKEND=ueberzug  # ueberzug kitty feh viu chafa
+declare -r -x BACKEND=${backend:-ueberzug}
 declare -r -x ANIMEHIST="${root}/anime_history.txt"
 declare -r -x WATCHED_FILE="${root}/watched_anime.txt"
 ### END OF USER SETTINGS

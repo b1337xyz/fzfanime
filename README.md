@@ -1,32 +1,62 @@
-## IMPORTANT: Edit/Read the scripts before running them 
+# *fzfanime*
+> IMPORTANT: Edit/Read the scripts before running them 
 
-#### Notes:
-- The script expects that all files in `$ANIME_DIR` are symlinks
-- Before running `fzfanime.sh` create `$DB`
-- By default AniList is used as main database
-
----
-
-#### Defaults
-```bash
-ANIME_DIR=~/Videos/Anime    
-BACKEND=ueberzug    # ueberzug kitty feh viu chafa
-DB=anilist.json     # generated with tools/update_anilist.py
-PLAYER='mpv'                 
+#### Usage:
 ```
+Usage: fzfanime.sh [options ...]
+
+Options:
+    -d --dir <dir>          directory (default: ~/Videos/Anime)
+    -p --player <player>    video player (default: mpv)
+    -b --backend <backend>  image preview (default: ueberzug) (available: ueberzug kitty feh viu chafa)
+    -f --fallback <backend> if $DISPLAY is unset fallback to <backend> (default: viu)
+    -h --help               show this message
+
+Notes:
+    - --option=value is not supported, use --option value
+    - The script expects that all files in "\$ANIME_DIR" are symlinks
+    - Before running ${0##*/} create "\$DB"
+    - \$DB generated using Anilist APIv2 -> https://anilist.gitbook.io/anilist-apiv2-docs
+      and Jikan APIv4 -> https://api.jikan.moe/v4/anime
+    - By default AniList is used as main database
+```
+
+#### `$DB` format
+```json
+{
+  "<Anime> (1998)": {
+    "idMal": 400,
+    "isAdult": false,
+    "title": "Anime",
+    "year": 1998,
+    "genres": ["Action"],
+    "episodes": 24,
+    "score": 74,
+    "image": "<local path to the image>",
+    "type": "TV",
+    "rated": "R+",
+    "duration": 25,
+    "studios": ["Sunrise"],
+  }
+}, // ...
+```
+Generated with [tools/update_anilist](https://github.com/b1337xyz/fzfanime/blob/main/tools/update_anilist.py) and [tools/update_maldb.py](https://github.com/b1337xyz/fzfanime/blob/main/tools/update_maldb.py)
+
 ---
 
 #### Dependencies
 - [fzf](https://github.com/junegunn/fzf)
 - [jq](https://github.com/stedolan/jq)
-- [ueberzug](https://github.com/b1337xyz/ueberzug) (optional) image preview
-- [viu](https://github.com/atanunq/viu#from-source-recommended) (optional) image preview
-- [chafa](https://hpjansson.org/chafa/) (optional) image preview
-- [feh](https://feh.finalrewind.org/) (optional) image preview
-  - [xdotool](https://www.semicomplete.com/projects/xdotool/) 
-  - `xwininfo` (`xorg-xwininfo` on Arch btw)
 - [devour](https://github.com/salman-abedin/devour) (optional)
 - [mpvhistory.lua](https://github.com/b1337xyz/config/blob/main/mpv/scripts/mpvhistory.lua) (optional)
+
+Image Preview (optional)
+- [ueberzug](https://github.com/b1337xyz/ueberzug)
+- [viu](https://github.com/atanunq/viu#from-source-recommended)
+- [chafa](https://hpjansson.org/chafa/)
+- [feh](https://feh.finalrewind.org/)
+    - [xdotool](https://www.semicomplete.com/projects/xdotool/) 
+    - `xwininfo` (`xorg-xwininfo` on Arch btw)
 
 ---
 
