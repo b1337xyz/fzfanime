@@ -62,7 +62,7 @@ Generated with [tools/update_anilist.py](https://github.com/b1337xyz/fzfanime/bl
 ![demo](demo.gif)
 
 ---
-## Bindings
+## Key bindings
 ```
 alt-c   : Continue watching
 alt-s   : Shuffle list
