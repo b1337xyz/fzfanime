@@ -56,7 +56,9 @@ Generated with [tools/update_anilist.py](https://github.com/b1337xyz/fzfanime/bl
     - [xdotool](https://www.semicomplete.com/projects/xdotool/) 
     - `xwininfo` (`xorg-xwininfo` on Arch btw)
 
+
 ![demo](demo.gif)
+
 
 ## Key bindings
 ```
