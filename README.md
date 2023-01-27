@@ -21,7 +21,7 @@ Notes:
     - By default AniList is used as main database
 ```
 
-#### `$DB` format
+#### `$DB` format:
 ```json
 {
   "<Anime> (1998)": {
@@ -40,17 +40,16 @@ Notes:
   }
 }, ...
 ```
-Generated with [tools/update_anilist](https://github.com/b1337xyz/fzfanime/blob/main/tools/update_anilist.py) and [tools/update_maldb.py](https://github.com/b1337xyz/fzfanime/blob/main/tools/update_maldb.py)
+Generated with [tools/update_anilist.py](https://github.com/b1337xyz/fzfanime/blob/main/tools/update_anilist.py) and [tools/update_maldb.py](https://github.com/b1337xyz/fzfanime/blob/main/tools/update_maldb.py)
 
 ---
+## Dependencies
 
-#### Dependencies
 - [fzf](https://github.com/junegunn/fzf)
 - [jq](https://github.com/stedolan/jq)
 - [devour](https://github.com/salman-abedin/devour) (optional)
 - [mpvhistory.lua](https://github.com/b1337xyz/config/blob/main/mpv/scripts/mpvhistory.lua) (optional)
-
-Image Preview (optional)
+#### Image Preview (optional)
 - [ueberzug](https://github.com/b1337xyz/ueberzug)
 - [viu](https://github.com/atanunq/viu#from-source-recommended)
 - [chafa](https://hpjansson.org/chafa/)
@@ -63,6 +62,7 @@ Image Preview (optional)
 ![demo](demo.gif)
 
 ---
+## Bindings
 ```
 alt-c   : Continue watching
 alt-s   : Shuffle list
