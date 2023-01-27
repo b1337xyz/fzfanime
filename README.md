@@ -1,7 +1,7 @@
 # *fzfanime*
 > IMPORTANT: Edit/Read the scripts before running them 
 
-#### Usage:
+### Usage:
 ```
 Usage: fzfanime.sh [options ...]
 
@@ -21,7 +21,7 @@ Notes:
     - By default AniList is used as main database
 ```
 
-#### `$DB` format:
+### `$DB` format:
 ```json
 {
   "<Anime> (1998)": {
@@ -42,7 +42,6 @@ Notes:
 ```
 Generated with [tools/update_anilist.py](https://github.com/b1337xyz/fzfanime/blob/main/tools/update_anilist.py) and [tools/update_maldb.py](https://github.com/b1337xyz/fzfanime/blob/main/tools/update_maldb.py)
 
----
 ## Dependencies
 
 - [fzf](https://github.com/junegunn/fzf)
@@ -57,11 +56,8 @@ Generated with [tools/update_anilist.py](https://github.com/b1337xyz/fzfanime/bl
     - [xdotool](https://www.semicomplete.com/projects/xdotool/) 
     - `xwininfo` (`xorg-xwininfo` on Arch btw)
 
----
-
 ![demo](demo.gif)
 
----
 ## Key bindings
 ```
 alt-c   : Continue watching
