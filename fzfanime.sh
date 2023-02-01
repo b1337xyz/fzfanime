@@ -229,8 +229,8 @@ main "$@" | fzf -e --no-sort --color dark --cycle \
     --header "^p ^s ^l ^r ^h ^w ^a ^e ^g ^v${n}A-p A-u A-c A-a A-d A-s A-b" \
     --bind 'ctrl-t:last' \
     --bind 'ctrl-b:first' \
-    --bind 'enter:reload(main select {})+clear-query' \
     --bind 'ctrl-d:delete-char' \
+    --bind 'enter:reload(main select {})+clear-query' \
     --bind 'ctrl-p:execute-silent(play {})' \
     --bind 'ctrl-r:reload(main)+first+change-prompt(NORMAL )' \
     --bind 'ctrl-h:reload(main adult)+first+change-prompt(ADULT )' \
