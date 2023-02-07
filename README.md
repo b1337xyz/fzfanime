@@ -55,7 +55,6 @@ Image Preview (optional)
     - `xwininfo` (`xorg-xwininfo` on Arch btw)
 
 ## Setup
-
 #### ArchLinux
 ```
 sudo pacman -Syu python python-pip fzf jq --needed
