@@ -151,7 +151,7 @@ def get_year(title: str) -> int:
         return
 
 
-def fill_the_gaps(a, b):
+def fill_the_gaps(a: dict, b: dict):
     for k in a:
         for v in a[k]:
             if not a[k][v] and k in b and b[k][v]:
