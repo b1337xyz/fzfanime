@@ -32,34 +32,31 @@ function finalise {
     [ -f "$FEH_IMAGE" ] && rm "$FEH_IMAGE"
 }
 function show_files {
-    p=$(readlink -m "${ANIME_DIR}/$1")
-    x=$p
-    printf '%s\n' "$x"
+    key="$1"
+    fullpath="$2"
+    printf '%s\n' "$fullpath"
 
     if [ -f "$MPVHIST" ];then
-        last_ep=$(grep -F "/${1}/" "$MPVHIST" | tail -n1)
+        last_ep=$(grep -F "/${key}/" "$MPVHIST" | tail -1)
         last_ep=${last_ep##*/}
-        if [ -f "${p}/${last_ep}" ];then
+        if [ -f "${fullpath}/${last_ep}" ];then
             printf 'Continue: \e[1;32m%s\e[m\n' "$last_ep"
         fi
     fi
 
     declare -a files=()
     cache="${CACHE_DIR}/${1}"
-    if [ -e "$p" ]; then
+    if [ -e "$fullpath" ]; then
         [ -f "$cache" ] && rm "$cache"
         ext_ptr='.*\.\(webm\|mkv\|avi\|mp4\|ogm\|mpg\|rmvb\)$'
-        size=$(du -sh "$p" | awk '{print $1}' | tee -a "$cache")
-
+        # size=$(du -sh "$fullpath" | awk '{print $1}' | tee -a "$cache")
         while IFS= read -r -d $'\0' i; do
             files+=("$i")
             echo "$i"
-        done < <(find "$p" -iregex "$ext_ptr" -printf '%f\0' | sort -z) >> "$cache"
+        done < <(find "$fullpath" -iregex "$ext_ptr" -printf '%f\0' | sort -z) >> "$cache"
     elif [ -s "$cache" ]; then
-        size=$(head -1 "$cache")
-        while read -r i;do
-            files+=("$i")
-        done < <(tail -n +2 "$cache")
+        # size=$(head -1 "$cache")
+        while read -r i;do files+=("$i"); done < "$cache"
         printf '\e[1;31mUnavailable\e[m\n'
     fi
 
@@ -67,12 +64,11 @@ function show_files {
         [ -n "$size" ] && printf 'Size: %s\t' "$size"
         printf 'Files: %s\n' "${#files[@]}"
         n=4
-        for ((i=0;i<"${#files[@]}";i++));do
-            x=${files[i]}
-            if [ "$i" -lt "$n" ] || [ "${#files[@]}" -le $((n*2)) ];then
-                printf '%s\n' "$x"
+        for ((i=0; i < "${#files[@]}"; i++));do
+            if [ "$i" -lt "$n" ] || [ "${#files[@]}" -le $((n * 2)) ];then
+                printf '%s\n' "${files[i]}"
             elif [ "$i" -ge $(( ${#files[@]} - n )) ];then
-                printf '%s\n' "$x"
+                printf '%s\n' "${files[i]}"
             fi
         done
     else
@@ -80,7 +76,7 @@ function show_files {
     fi
 }
 function preview {
-    IFS=$'\n' read -d '' -r title _type genres episodes score rated studios image < <(\
+    IFS=$'\n' read -d '' -r title _type genres episodes score rated studios image fullpath < <(\
         jq -Mr --argjson k "\"$1\"" '.[$k] |
            "\(.title // "404")
             \(.type)
@@ -89,7 +85,8 @@ function preview {
             \(.score // "Unknown")
             \(.rated)
             \(.studios | if length > 0 then . | join(", ") else "Unknown" end)
-            \(.image)"' "$DB" 2>/dev/null | sed 's/^\s*//')
+            \(.image)
+            \(.fullpath)"' "$DB" 2>/dev/null | sed 's/^\s*//')
 
     [ "$BACKEND" = "kitty" ] && kitty icat --transfer-mode=file \
         --stdin=no --clear --silent >/dev/null 2>&1 </dev/tty
@@ -100,8 +97,6 @@ function preview {
             printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
 
         printf "404 - preview not found\n\n"
-        # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
-        # show_files "$1"
         return 0
     fi
     watched=$(grep -xF "$1" "$WATCHED_FILE" || true)
@@ -171,10 +166,8 @@ function preview {
         ;;
     esac
 
-    if ! [[ "$BACKEND" =~ viu|chafa ]];then
-        for _ in {1..13};do echo ;done
-    fi
+    [[ "$BACKEND" =~ viu|chafa ]] || for _ in {1..13};do echo; done
     # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
-    show_files "$1" &
+    show_files "$1" "$fullpath" &
 }
 export -f preview show_files

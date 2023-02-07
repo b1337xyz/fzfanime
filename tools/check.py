@@ -20,7 +20,7 @@ year = datetime.now().year
 bad = list()
 for k in anidb:
     for sub_k in anidb[k]:
-        if anidb[k][sub_k] == None and anidb[k]['year'] != year:
+        if anidb[k][sub_k] is None and anidb[k]['year'] != year:
             print(f'{k} - \033[1;32m{sub_k}\033[m is empty')
             bad.append(k)
             break

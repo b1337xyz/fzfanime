@@ -4,7 +4,8 @@ import json
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 DB_PATH = os.path.join(ROOT, '../anilist.json')
-WATCHED = '{}/.cache/watched_anime.txt'.format(os.getenv('HOME'))
+HOME = os.getenv('HOME')
+WATCHED = os.path.join(HOME, '.scripts/shell/fzfanime/watched_anime.txt')
 
 with open(DB_PATH, 'r') as fp:
     db = json.load(fp)

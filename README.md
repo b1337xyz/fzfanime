@@ -1,12 +1,11 @@
 # *fzfanime*
-> IMPORTANT: Edit/Read the scripts before running them 
 
-### Usage:
+## Usage
 ```
 Usage: fzfanime.sh [options ...]
 
 Options:
-    -d --dir <dir>          directory (default: ~/Videos/Anime)
+    -u --update             update/create $DB
     -p --player <player>    video player (default: mpv)
     -b --backend <backend>  image preview (default: ueberzug) (available: ueberzug kitty feh viu chafa)
     -f --fallback <backend> if $DISPLAY is unset fallback to <backend> (default: viu)
@@ -14,19 +13,19 @@ Options:
 
 Notes:
     - --option=value is not supported, use --option value
-    - The script expects that all files in "$ANIME_DIR" are symlinks
     - Before running fzfanime.sh create "$DB"
     - $DB generated using Anilist APIv2 -> https://anilist.gitbook.io/anilist-apiv2-docs
       and Jikan APIv4 -> https://api.jikan.moe/v4/anime
     - By default AniList is used as main database
+
 ```
 
 ### `$DB` format:
 ```json
 {
   "<Anime> (1998)": {
-    "idMal": 400,
-    "isAdult": false,
+    "mal_id": 400,
+    "is_adult": false,
     "title": "Anime",
     "year": 1998,
     "genres": ["Action", ...],
@@ -40,21 +39,31 @@ Notes:
   }
 }, ...
 ```
-Generated with [tools/update_anilist.py](https://github.com/b1337xyz/fzfanime/blob/main/tools/update_anilist.py) and [tools/update_maldb.py](https://github.com/b1337xyz/fzfanime/blob/main/tools/update_maldb.py)
 
 ## Dependencies
 
+- [requests](https://requests.readthedocs.io/en/latest/)
+- [thefuzz](https://github.com/seatgeek/thefuzz)
 - [fzf](https://github.com/junegunn/fzf)
 - [jq](https://github.com/stedolan/jq)
 - [devour](https://github.com/salman-abedin/devour) (optional)
 - [mpvhistory.lua](https://github.com/b1337xyz/config/blob/main/mpv/scripts/mpvhistory.lua) (optional)
-#### Image Preview (optional)
+
+Image Preview (optional)
 - [ueberzug](https://github.com/b1337xyz/ueberzug)
 - [viu](https://github.com/atanunq/viu#from-source-recommended)
 - [chafa](https://hpjansson.org/chafa/)
 - [feh](https://feh.finalrewind.org/)
     - [xdotool](https://www.semicomplete.com/projects/xdotool/) 
     - `xwininfo` (`xorg-xwininfo` on Arch btw)
+
+## Setup
+```
+git clone https://github.com/b1337xyz/fzfanime.git
+cd fzfanime
+python3 -m pip install -U -r requirements.txt
+bash fzfanime.sh --update  # before running edit config
+```
 
 ---
 

@@ -2,17 +2,14 @@
 #
 # Remove entries wich the symlink in <ANIME_DIR> does not exist anymore
 #
-
+from datetime import datetime
+from pathlib import Path
 import os
 import json
-from datetime import datetime
 
-HOME = os.getenv('HOME')
 ROOT = os.path.dirname(os.path.realpath(__file__))
-ANIME_PATH = os.path.join(HOME, 'Videos/Anime')
-ANIDB = os.path.join(ROOT, '../anilist.json')
-MALDB = os.path.join(ROOT, '../maldb.json')
-
+MALDB = os.path.join(ROOT, '../data/maldb.json')
+ANIDB = os.path.join(ROOT, '../data/anilist.json')
 
 class DB:
     def __init__(self, fpath):
@@ -36,10 +33,10 @@ class DB:
             with open(self.fpath, 'r') as fp:
                 self.db = json.load(fp)
         except FileNotFoundError:
-            self.db = dict()
+            exit(1)
 
     def write(self):
-        #self.backup()
+        # self.backup()
         with open(self.fpath, 'w') as fp:
             json.dump(self.db, fp)
 
@@ -47,10 +44,12 @@ class DB:
         db = self.db.copy()
         before = len(db)
         for k in db:
-            anime = os.path.join(ANIME_PATH, k)
-            if not os.path.islink(anime):
+            fullpath = Path(self.db[k]['fullpath'])
+            parent = fullpath.parent
+            if parent.exists() and not fullpath.exists():
                 del self.db[k]
                 print('{} removed'.format(k))
+
         after = len(self.db)
         print('{} entries removed'.format(before - after))
         if before - after > 0:

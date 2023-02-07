@@ -1,23 +1,19 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2155
+# shellcheck disable=SC2155,SC1091
 # Notes:
 #   - grep -xFf <file1> <file2> ...  will keep the order of the second file
 
 set -eo pipefail
 
 root=$(realpath "$0") root=${root%/*}
-# shellcheck disable=SC1091
-source "${root}/preview.sh" || {
-    printf 'Failed to source %s\n' "${root}/preview.sh";
-    exit 1;
-}
+cd "$root"
 
 function help {
     cat << EOF
 Usage: ${0##*/} [options ...]
 
 Options:
-    -d --dir <dir>          directory (default: ~/Videos/Anime)
+    -u --update             update/create \$DB
     -p --player <player>    video player (default: mpv)
     -b --backend <backend>  image preview (default: ueberzug) (available: ueberzug kitty feh viu chafa)
     -f --fallback <backend> if \$DISPLAY is unset fallback to <backend> (default: viu)
@@ -25,8 +21,6 @@ Options:
 
 Notes:
     - --option=value is not supported, use --option value
-    - The script expects that all files in "\$ANIME_DIR" are symlinks
-    - Before running ${0##*/} create "\$DB"
     - \$DB generated using Anilist APIv2 -> https://anilist.gitbook.io/anilist-apiv2-docs
       and Jikan APIv4 -> https://api.jikan.moe/v4/anime
     - By default AniList is used as main database
@@ -34,13 +28,19 @@ Notes:
 EOF
     exit 0
 }
+function update {
+    set -x
+    ./update_maldb.py
+    ./update_anilist.py
+    ./tools/clean_db.py
+}
 
 while [ $# -gt 0 ];do
     case "$1" in
-        -d|--dir) shift; anime_dir=$1 ;;
         -p|--player) shift; player=$1 ;;
         -b|--backend) shift; backend=$1 ;;
         -f|--fallback) shift; fallback=$1 ;;
+        -u|--update) update; exit 0 ;;
         -*) help ;;
     esac
     shift
@@ -48,12 +48,11 @@ done
 [ -z "$DISPLAY" ] && hash "${fallback:-viu}" && backend=${fallback:-viu}
 
 ### USER SETTINGS
-declare -r -x ANIME_DIR=${anime_dir:-~/Videos/Anime}
+declare -r -x DB="${root}/data/anilist.json"
+declare -r -x ANIMEHIST="${root}/data/anime_history.txt"
+declare -r -x WATCHED_FILE="${root}/data/watched_anime.txt"
 declare -r -x PLAYER=${player:-'mpv --profile=fzfanime'}
-declare -r -x DB="${root}/anilist.json"
 declare -r -x BACKEND=${backend:-ueberzug}
-declare -r -x ANIMEHIST="${root}/anime_history.txt"
-declare -r -x WATCHED_FILE="${root}/watched_anime.txt"
 ### END OF USER SETTINGS
 
 ### PREVIEW SETTINGS
@@ -68,16 +67,20 @@ declare -r -x FEH_WIDTH=255
 declare -r -x FEH_HEIGHT=380
 ### END OF PREVIEW SETTINGS
 
+[ -e "$DB" ] || update
+
+source preview.sh || { printf 'Failed to source %s\n' "${root}/preview.sh"; exit 1; }
 
 [ -d "$CACHE_DIR" ] || mkdir -p "$CACHE_DIR"
-[ -d "$ANIME_DIR" ] || { printf '%s not found\n' "${ANIME_DIR}"; exit 1; }
 
 declare -r -x mainfile=$(mktemp --dry-run) 
 declare -r -x tempfile=$(mktemp --dry-run)
 declare -r -x modefile=$(mktemp --dry-run)
 
 function play {
-    [ -e "${ANIME_DIR}/$1" ] || return 1
+    # path=$(jq -Mcr --argjson k "\"$1\"" '.[$k].fullpath' "$DB")
+    path=$(jq -Mcr --arg k "$1" '.[$k].fullpath' "$DB")
+    [ -e "$path" ] || return 1
 
     # save some cpu usage... maybe
     [ "$BACKEND" = ueberzug ] && 
@@ -85,18 +88,18 @@ function play {
 
     echo "$1" >> "$ANIMEHIST"
     # shellcheck disable=SC2086
-    if command -v devour >/dev/null 2>&1;then
-        devour $PLAYER "${ANIME_DIR}/$1" >/dev/null 2>&1
+    if hash devour;then
+        devour $PLAYER "$path" >/dev/null 2>&1
     else
-        nohup  $PLAYER "${ANIME_DIR}/$1" >/dev/null 2>&1 & disown
+        nohup  $PLAYER "$path" >/dev/null 2>&1 & disown
     fi
 }
 function main {
     # filters
     case "$1" in
+        shuffle) shuf "$mainfile"; return ;;
         add_watched)
-            grep -qxF "$2" "$WATCHED_FILE" 2>/dev/null ||
-                printf '%s\n' "$2" >> "$WATCHED_FILE"
+            grep -qxF "$2" "$WATCHED_FILE" 2>/dev/null || printf '%s\n' "$2" >> "$WATCHED_FILE"
         ;;
         del_watched)
             if grep -qxF "$2" "$WATCHED_FILE" 2>/dev/null;then
@@ -104,21 +107,22 @@ function main {
             fi
         ;;
         avail)
-            grep -vxFf <(find "$ANIME_DIR" -mindepth 1 -maxdepth 1 \
-                -xtype l -printf '%f\n') "$mainfile" | tee "$tempfile"
+            grep -xFf <(jq -SMcr .[].fullpath "$DB" | while read -r i;do 
+                    a=${i%/*}
+                    [ "$a" = "$b" ] && continue
+                    [ -e "$a" ] || { b=$a; continue; }
+                    printf '%s\n' "${i##*/}"
+                done) "$mainfile" | tee "$tempfile"
         ;;
         by_score)
-            grep -xFf "$mainfile" <(jq -r \
-            '[ keys[] as $k | .[$k] | {"title": $k, "score": .["score"]}] | sort_by(.score) | .[].title' "$DB") |
-            tee "$tempfile"
+            grep -xFf "$mainfile" <(jq -Mcr \
+                '[keys[] as $k | {id: $k, score: .[$k].score}] | sort_by(.score) | .[].id' "$DB") | tee "$tempfile"
         ;;
         by_year)
             sed 's/.*(\([0-9]\{4\}\)).*/\1;\0/g' "$mainfile" | sort -n | sed 's/^[0-9]\{4\}\;//g' | tee "$tempfile"
         ;;
         by_episodes)
-            grep -xFf "$mainfile" <(jq -r \
-            '[keys[] as $k | {id: "\($k)", episodes: .[$k]["episodes"]}] | sort_by(.episodes)[] | .id' "$DB") |
-            tee "$tempfile"
+            grep -xFf "$mainfile" <(jq -Mcr '[keys[] as $k | {id: $k, episodes: .[$k].episodes}] | sort_by(.episodes)[] | .id' "$DB") | tee "$tempfile"
         ;;
         watched)
             grep -xFf "$mainfile" "$WATCHED_FILE" | tac | tee "$tempfile"
@@ -130,22 +134,20 @@ function main {
             grep -xFf "$mainfile" <(tac "$ANIMEHIST" | awk '!seen[$0]++') | tee "$tempfile"
         ;;
         continue)
-            grep -vxFf "$WATCHED_FILE" <(grep -xFf "$mainfile" <(
-                tac "$ANIMEHIST" | awk '!seen[$0]++')) | tee "$tempfile"
+            grep -vxFf "$WATCHED_FILE" <(grep -xFf "$mainfile" <(tac "$ANIMEHIST" | awk '!seen[$0]++')) | tee "$tempfile"
         ;;
         latest)
-            # grep -xFf "$mainfile" <(ls --color=never -N1Ltc "$ANIME_DIR") | tee "$tempfile"
-            awk -v p="$ANIME_DIR" '{printf("%s/%s\0", p, $0)}' "$mainfile" |
-                xargs -r0 ls --color=never -dN1Ltc | grep -oP '[^/]*$' | tee "$tempfile"
+            keys=$(while read -r i;do printf '"%s",' "$i" ;done < "$mainfile")
+            jq -Mcr --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
+                xargs -r0 ls --color=never -dN1tc 2>/dev/null | grep -oP '[^/]*$' | tee "$tempfile"
         ;;
-        shuffle) shuf "$mainfile" ;;
         by_size)
-            awk -v p="$ANIME_DIR" '{printf("%s/%s\0", p, $0)}' "$mainfile" |
+            keys=$(while read -r i;do printf '"%s",' "$i" ;done < "$mainfile")
+            jq -Mcr --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
                 du -L --files0-from=- | sort -n | grep -oP '[^/]*$' | tee "$tempfile"
         ;;
         genre) 
             printf "genres" > "$modefile"
-            # jq -r '.[].genres | if . == [] then "Unknown" else "\(.[])" end' "$DB" | sort -u
             jq -r '.[] | .genres[] // "Unknown"' "$DB" | sort -u
             return
         ;;
@@ -161,15 +163,7 @@ function main {
         ;;
         path)
             printf "path" > "$modefile"
-            readlink "$ANIME_DIR"/* | awk '{
-                split($1, a, "/");
-                x=a[length(a)-2];
-                if (x == "..") {
-                    print a[length(a)-1]
-                } else {
-                    print x
-                }
-            }' | sort -u
+            jq -Mcr '.[].fullpath' "$DB" | grep -oP '.*(?=/Anime/)' | sort -u
             return
         ;;
         select)
@@ -178,32 +172,26 @@ function main {
                 if [ "$2" = "Unknown" ];then
                     grep -xFf <(jq -r 'keys[] as $k | select(.[$k]["genres"] == []) | $k' "$DB") "$mainfile"
                 else
-                    grep -xFf <(jq -r --arg mode "$curr_mode" --arg v "$2" \
-                        'keys[] as $k | select(.[$k][$mode] | index($v)) | $k' "$DB") "$mainfile"
+                    grep -xFf <(jq -r --arg mode "$curr_mode" --arg v "$2" 'keys[] as $k | select(.[$k][$mode] | index($v)) | $k' "$DB") "$mainfile"
                 fi | tee "$tempfile"
             elif [[ "$curr_mode" =~ (type|rated) ]];then
                 if [ "$2" = "Unknown" ];then
-                    grep -xFf <(jq -r --arg mode "$curr_mode" \
-                        'keys[] as $k | select(.[$k][$mode] | not) | $k' "$DB") "$mainfile"
+                    grep -xFf <(jq -r --arg mode "$curr_mode" 'keys[] as $k | select(.[$k][$mode] | not) | $k' "$DB") "$mainfile"
                 else
-                    grep -xFf <(jq -r --arg mode "$curr_mode" --arg v "$2" \
-                        'keys[] as $k | select(.[$k][$mode] == $v) | $k' "$DB") "$mainfile"
+                    grep -xFf <(jq -r --arg mode "$curr_mode" --arg v "$2" 'keys[] as $k | select(.[$k][$mode] == $v) | $k' "$DB") "$mainfile"
                 fi | tee "$tempfile"
             elif [ "$curr_mode" = "path" ];then
-                grep -xFf <(stat -c '%N' "$ANIME_DIR"/* | awk -F' -> ' -v mode="$2" \
-                    '$0 ~ mode {split($1, a, "/"); x=a[length(a)]; print substr(x, 1, length(x) - 1) }') \
-                    "$mainfile" | tee "$tempfile"
+                jq -Mcr '.[].fullpath' "$DB" | grep -F "${2}/" | grep -oP '[^/]*$' | tee "$tempfile"
             else
                 play "$2"
                 cat "$mainfile"
             fi
         ;;
         adult)
-            jq -Sr 'keys[] as $k | select(.[$k].isAdult) | $k' "$DB" | tee "$mainfile"
+            jq -Sr 'keys[] as $k | select(.[$k].is_adult) | $k' "$DB" | tee "$mainfile"
         ;;
         *)
-            jq -Sr 'keys[] as $k | select(.[$k].isAdult | not) | $k' "$DB" | tee "$mainfile"
-            # find "$ANIME_DIR" -mindepth 1 -maxdepth 1 -printf '%f\n' | sort | tee "$mainfile"
+            jq -Sr 'keys[] as $k | select(.[$k].is_adult | not) | $k' "$DB" | tee "$mainfile"
         ;;
     esac
 
@@ -219,6 +207,7 @@ if [ -n "$DISPLAY" ];then
         feh) start_feh & ;;
     esac
 fi
+
 
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
