@@ -33,6 +33,7 @@ function update {
     python3 update_maldb.py
     python3 update_anilist.py
     python3 tools/clean_db.py
+    set +x
 }
 
 while [ $# -gt 0 ];do
@@ -72,6 +73,8 @@ declare -r -x FEH_HEIGHT=380
 source preview.sh || { printf 'Failed to source %s\n' "${root}/preview.sh"; exit 1; }
 
 [ -d "$CACHE_DIR" ] || mkdir -p "$CACHE_DIR"
+[ -e "$WATCHED_FILE" ] || :> "$WATCHED_FILE"
+[ -e "$ANIMEHIST" ] || :> "$ANIMEHIST"
 
 declare -r -x mainfile=$(mktemp --dry-run) 
 declare -r -x tempfile=$(mktemp --dry-run)
