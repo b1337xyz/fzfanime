@@ -1,6 +1,4 @@
 # *fzfanime*
-
-## Usage
 ```
 Usage: fzfanime.sh [options ...]
 
@@ -17,7 +15,6 @@ Notes:
     - $DB generated using Anilist APIv2 -> https://anilist.gitbook.io/anilist-apiv2-docs
       and Jikan APIv4 -> https://api.jikan.moe/v4/anime
     - By default AniList is used as main database
-
 ```
 
 ### `$DB` format:
@@ -58,11 +55,23 @@ Image Preview (optional)
     - `xwininfo` (`xorg-xwininfo` on Arch btw)
 
 ## Setup
+
+### ArchLinux
+```
+sudo pacman -Syu python python-pip fzf jq --needed
+```
+### Debian
+```
+sudo apt install python3 python3-pip fzf jq -y
+```
 ```
 git clone https://github.com/b1337xyz/fzfanime.git
 cd fzfanime
 python3 -m pip install -U -r requirements.txt
-bash fzfanime.sh --update  # before running edit config
+```
+> before running edit config
+```
+bash fzfanime.sh
 ```
 
 ---
