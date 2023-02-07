@@ -56,14 +56,15 @@ Image Preview (optional)
 
 ## Setup
 
-### ArchLinux
+#### ArchLinux
 ```
 sudo pacman -Syu python python-pip fzf jq --needed
 ```
-### Debian
+#### Debian
 ```
 sudo apt install python3 python3-pip fzf jq -y
 ```
+
 ```
 git clone https://github.com/b1337xyz/fzfanime.git
 cd fzfanime
