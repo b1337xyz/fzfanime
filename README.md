@@ -67,10 +67,7 @@ sudo apt install git python3 python3-pip fzf jq ueberzug -y
 git clone https://github.com/b1337xyz/fzfanime.git
 cd fzfanime
 python3 -m pip install -U -r requirements.txt
-```
-> before running edit config
-```
-bash fzfanime.sh
+bash fzfanime.sh  # before running edit config
 ```
 
 ---
