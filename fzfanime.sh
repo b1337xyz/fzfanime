@@ -30,9 +30,9 @@ EOF
 }
 function update {
     set -x
-    ./update_maldb.py
-    ./update_anilist.py
-    ./tools/clean_db.py
+    python3 update_maldb.py
+    python3 update_anilist.py
+    python3 tools/clean_db.py
 }
 
 while [ $# -gt 0 ];do
