@@ -16,8 +16,7 @@ Notes:
       and Jikan APIv4 -> https://api.jikan.moe/v4/anime
     - By default AniList is used as main database
 ```
-
-### `$DB` format:
+#### `$DB` format:
 ```json
 {
   "<Anime> (1998)": {
@@ -55,13 +54,13 @@ Image Preview (optional)
     - `xwininfo` (`xorg-xwininfo` on Arch btw)
 
 ## Setup
-#### ArchLinux
+ArchLinux
 ```
-sudo pacman -Syu python python-pip fzf jq --needed
+sudo pacman -Syu git python python-pip fzf jq ueberzug --needed
+```  
+Debian
 ```
-#### Debian
-```
-sudo apt install python3 python3-pip fzf jq -y
+sudo apt install git python3 python3-pip fzf jq ueberzug -y
 ```
 
 ```
