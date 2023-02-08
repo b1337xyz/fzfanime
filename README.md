@@ -38,8 +38,6 @@ Notes:
 
 ## Dependencies
 
-- [requests](https://requests.readthedocs.io/en/latest/)
-- [thefuzz](https://github.com/seatgeek/thefuzz)
 - [fzf](https://github.com/junegunn/fzf)
 - [jq](https://github.com/stedolan/jq)
 - [devour](https://github.com/salman-abedin/devour) (optional)
@@ -52,6 +50,10 @@ Image Preview (optional)
 - [feh](https://feh.finalrewind.org/)
     - [xdotool](https://www.semicomplete.com/projects/xdotool/) 
     - `xwininfo` (`xorg-xwininfo` on Arch btw)
+
+Python
+- [requests](https://requests.readthedocs.io/en/latest/)
+- [thefuzz](https://github.com/seatgeek/thefuzz)
 
 ## Setup
 ArchLinux
