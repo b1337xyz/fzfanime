@@ -161,7 +161,7 @@ function main {
         ;;
         rated)
             printf 'rated' > "$modefile"
-            jq -r '.[] | .rated // "Unknown"' "$DB" | sort -u
+            jq -r '.[] | .rating // "Unknown"' "$DB" | sort -u
             return
         ;;
         path)

@@ -83,7 +83,7 @@ function preview {
             \(.genres | if length > 0 then . | join(", ") else "Unknown" end)
             \(.episodes // "Unknown")
             \(.score // "Unknown")
-            \(.rated)
+            \(.rating)
             \(.studios | if length > 0 then . | join(", ") else "Unknown" end)
             \(.image)
             \(.fullpath)"' "$DB" 2>/dev/null | sed 's/^\s*//')
@@ -109,15 +109,12 @@ function preview {
         printf '%'$WIDTH's Score: %s\n'       ' ' "$score"
         printf '%'$WIDTH's Studios: %s\n'     ' ' "$studios"
 
-        if [ "$watched" ];then
-            printf '%'$WIDTH's \e[1;32mWatched\e[m\n\r' ' '
-        else
-            echo
-        fi
+        if [ "$watched" ];then printf '%'$WIDTH's \e[1;32mWatched\e[m\n\r' ' '; else echo; fi
     fi
 
 
     case "$BACKEND" in
+        feh) echo "$image" > "$FEH_FILE" ;;
         kitty)
             kitty icat --transfer-mode=file \
                 --stdin=no --silent --align=left --scale-up \
@@ -126,9 +123,6 @@ function preview {
         ueberzug) 
             printf '{"action": "add", "identifier": "%s", "x": 0, "y": 0, "width": %d, "height": %d, "scaler": "%s", "path": "%s"}\n' \
                 "preview" "$WIDTH" "$HEIGHT" "distort" "$image" > "$UEBERZUG_FIFO"
-        ;;
-        feh)
-            echo "$image" > "$FEH_FILE"
         ;;
         viu|chafa)
             # https://github.com/atanunq/viu#from-source-recommended
