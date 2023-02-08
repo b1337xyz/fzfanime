@@ -51,10 +51,6 @@ Image Preview (optional)
     - [xdotool](https://www.semicomplete.com/projects/xdotool/) 
     - `xwininfo` (`xorg-xwininfo` on Arch btw)
 
-Python
-- [requests](https://requests.readthedocs.io/en/latest/)
-- [thefuzz](https://github.com/seatgeek/thefuzz)
-
 ## Setup
 ArchLinux
 ```
