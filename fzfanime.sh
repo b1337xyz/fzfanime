@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2155,SC1091
-# Notes:
-#   - grep -xFf <file1> <file2> ...  will keep the order of the second file
-
+# shellcheck disable=SC2155
 set -eo pipefail
 
 root=$(realpath "$0") root=${root%/*}
@@ -30,8 +27,7 @@ EOF
 }
 function update {
     set -x
-    python3 update_maldb.py
-    python3 update_anilist.py
+    python3 update_maldb.py && python3 update_anilist.py
     set +x
 }
 
@@ -67,10 +63,10 @@ declare -r -x FEH_WIDTH=255
 declare -r -x FEH_HEIGHT=380
 ### END OF PREVIEW SETTINGS
 
-[ -e "$DB" ] || update
-
+# shellcheck disable=SC1091
 source preview.sh || { printf 'Failed to source %s\n' "${root}/preview.sh"; exit 1; }
-
+hash "$BACKEND" || { printf 'backend "%s" not found\n' "$BACKEND"; exit 1; }
+[ -e "$DB" ] || update
 [ -d "$CACHE_DIR" ] || mkdir -p "$CACHE_DIR"
 [ -e "$WATCHED_FILE" ] || :> "$WATCHED_FILE"
 [ -e "$ANIMEHIST" ] || :> "$ANIMEHIST"
@@ -96,7 +92,7 @@ function play {
     fi
 }
 function main {
-    # filters
+    # grep -xFf <file1> <file2> ...  will keep the order of the second file
     case "$1" in
         shuffle) shuf "$mainfile"; return ;;
         add_watched)
