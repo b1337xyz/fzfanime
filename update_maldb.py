@@ -37,7 +37,7 @@ def get_info(title: str) -> dict:
 
     year = get_year(title)
     query = clean_str(title)
-    print(f'{title = }\n{query = }')
+    print(f'{GRN}{title = }\n{query = }{END}')
     if len(query) < 3:
         return
 

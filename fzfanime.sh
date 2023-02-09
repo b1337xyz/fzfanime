@@ -32,7 +32,6 @@ function update {
     set -x
     python3 update_maldb.py
     python3 update_anilist.py
-    python3 tools/clean_db.py
     set +x
 }
 

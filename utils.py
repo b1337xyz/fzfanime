@@ -19,6 +19,7 @@ ANILIST_API = 'https://graphql.anilist.co'
 JIKAN_API = 'https://api.jikan.moe/v4/anime'
 
 RED = '\033[1;31m'
+GRN = '\033[1;32m'
 END = '\033[m'
 
 api_query = '''
