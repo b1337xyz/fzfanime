@@ -81,7 +81,6 @@ declare -r -x tempfile=$(mktemp --dry-run)
 declare -r -x modefile=$(mktemp --dry-run)
 
 function play {
-    # path=$(jq -Mcr --argjson k "\"$1\"" '.[$k].fullpath' "$DB")
     path=$(jq -Mcr --arg k "$1" '.[$k].fullpath' "$DB")
     [ -e "$path" ] || return 1
 

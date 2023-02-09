@@ -80,7 +80,7 @@ def main():
     maldb = load_json(MALDB)
     titles = [i for i in get_titles() if i[1] not in maldb]
     if not titles:
-        print('nothing to do')
+        print('Nothing to do')
         return
 
     total = len(titles)
@@ -90,6 +90,7 @@ def main():
 
         info = get_info(title)
         if not info:
+            print('Nothing found')
             continue
 
         update_maldb(title, info)

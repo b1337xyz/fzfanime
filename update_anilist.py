@@ -8,6 +8,7 @@ if not os.path.exists(IMG_DIR):
 
 
 def search_by_id(mal_id: int) -> dict:
+    print(f'Searching by mal id "{mal_id}" ...')
     sleep(0.5)
     variables = {'idMal': mal_id, 'page': 1, 'perPage': 10}
     data = session.post(ANILIST_API, json={
@@ -17,6 +18,7 @@ def search_by_id(mal_id: int) -> dict:
 
 
 def search(query: str) -> dict:
+    print(f'Searching by query "{query}" ...')
     sleep(0.5)
     variables = {'search': query, 'page': 1, 'perPage': 20}
     data = session.post(ANILIST_API, json={
@@ -36,7 +38,7 @@ def get_info(title: str) -> dict:
         try:
             return search_by_id(malid)
         except Exception:
-            print(f'Failed to find by MALID: {malid}')
+            print(f'Failed to find by mal id: {malid}')
 
     year = get_year(title)
     query = clean_str(title)
@@ -75,7 +77,7 @@ def main():
     maldb = load_json(MALDB)
     titles = [i for i in get_titles() if i[1] not in anilist]
     if not titles:
-        print('nothing to do')
+        print('Nothing to do')
         return
 
     total = len(titles)
@@ -87,14 +89,15 @@ def main():
         if info:
             update_anilist(title, info)
         elif title in maldb:
-            print('falling back to maldb...')
+            print('Falling back to maldb...')
             anilist[title] = maldb[title]
 
         if not info:
+            print('Nothing found')
             continue
 
         anilist[title]['fullpath'] = fullpath
-        # print(json.dumps(anilist[title], indent=2))
+        print(json.dumps(anilist[title], indent=2))
 
     fill_the_gaps(anilist, maldb)
     save_json(anilist, ANIDB)
