@@ -68,6 +68,8 @@ python3 -m pip install -U -r requirements.txt
 bash fzfanime.sh  # before running edit config
 ```
 
+[Settings](https://github.com/b1337xyz/fzfanime/blob/main/fzfanime.sh#L46)
+
 ---
 
 ![demo](demo.gif)
