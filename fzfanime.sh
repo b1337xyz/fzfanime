@@ -153,8 +153,8 @@ function main {
             jq -r '.[] | .type // "Unknown"' "$DB" | sort -u
             return
         ;;
-        rated)
-            printf 'rated' > "$modefile"
+        rating)
+            printf 'rating' > "$modefile"
             jq -r '.[] | .rating // "Unknown"' "$DB" | sort -u
             return
         ;;
@@ -167,15 +167,15 @@ function main {
             curr_mode=$(<"$modefile")
             if [ "$curr_mode" = genres ];then
                 if [ "$2" = "Unknown" ];then
-                    grep -xFf <(jq -r 'keys[] as $k | select(.[$k]["genres"] == []) | $k' "$DB") "$mainfile"
+                    jq -r 'keys[] as $k | select(.[$k]["genres"] == []) | $k' "$DB"
                 else
-                    grep -xFf <(jq -r --arg mode "$curr_mode" --arg v "$2" 'keys[] as $k | select(.[$k][$mode] | index($v)) | $k' "$DB") "$mainfile"
+                    jq -r --arg mode "$curr_mode" --arg v "$2" 'keys[] as $k | select(.[$k][$mode] | index($v)) | $k' "$DB"
                 fi | tee "$tempfile"
-            elif [[ "$curr_mode" =~ (type|rated) ]];then
+            elif [[ "$curr_mode" =~ (type|rating) ]];then
                 if [ "$2" = "Unknown" ];then
-                    grep -xFf <(jq -r --arg mode "$curr_mode" 'keys[] as $k | select(.[$k][$mode] | not) | $k' "$DB") "$mainfile"
+                    jq -r --arg mode "$curr_mode" 'keys[] as $k | select(.[$k][$mode] | not) | $k' "$DB"
                 else
-                    grep -xFf <(jq -r --arg mode "$curr_mode" --arg v "$2" 'keys[] as $k | select(.[$k][$mode] == $v) | $k' "$DB") "$mainfile"
+                    jq -r --arg mode "$curr_mode" --arg v "$2" 'keys[] as $k | select(.[$k][$mode] == $v) | $k' "$DB"
                 fi | tee "$tempfile"
             elif [ "$curr_mode" = "path" ];then
                 jq -Mcr '.[].fullpath' "$DB" | grep -F "${2}/" | grep -oP '[^/]*$' | tee "$tempfile"
@@ -230,7 +230,7 @@ main "$@" | fzf -e --no-sort --color dark --cycle \
     --bind 'ctrl-v:reload(main type)+first+change-prompt(TYPE )' \
     --bind 'alt-l:reload(main latest)+first+change-prompt(LATEST )' \
     --bind 'alt-p:reload(main path)+first+change-prompt(PATH )' \
-    --bind 'alt-r:reload(main rated)+first+change-prompt(RATED )' \
+    --bind 'alt-r:reload(main rating)+first+change-prompt(RATING )' \
     --bind 'alt-s:reload(main shuffle)+first+change-prompt(SHUFFLED )' \
     --bind 'alt-u:reload(main unwatched)+change-prompt(UNWATCHED )' \
     --bind 'alt-c:reload(main continue)+first+change-prompt(CONTINUE )' \
