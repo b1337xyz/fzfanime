@@ -44,35 +44,24 @@ function show_files {
         fi
     fi
 
-    declare -a files=()
     cache="${CACHE_DIR}/${1}"
+    declare -a files=()
     if [ -e "$fullpath" ]; then
-        [ -f "$cache" ] && rm "$cache"
-        ext_ptr='.*\.\(webm\|mkv\|avi\|mp4\|ogm\|mpg\|rmvb\)$'
-        # size=$(du -sh "$fullpath" | awk '{print $1}' | tee -a "$cache")
         while IFS= read -r -d $'\0' i; do
             files+=("$i")
-            echo "$i"
-        done < <(find "$fullpath" -iregex "$ext_ptr" -printf '%f\0' | sort -z) >> "$cache"
-    elif [ -s "$cache" ]; then
-        # size=$(head -1 "$cache")
-        while read -r i;do files+=("$i"); done < "$cache"
-        printf '\e[1;31mUnavailable\e[m\n'
+            printf '%s\n' "$i"
+        done < <(find "$fullpath" -iregex "$RE_EXT" -printf '%f\0' | sort -z) > "$cache"
     fi
 
     if [ "${#files[@]}" -gt 0 ];then
-        [ -n "$size" ] && printf 'Size: %s\t' "$size"
         printf 'Files: %s\n' "${#files[@]}"
-        n=4
-        for ((i=0; i < "${#files[@]}"; i++));do
-            if [ "$i" -lt "$n" ] || [ "${#files[@]}" -le $((n * 2)) ];then
-                printf '%s\n' "${files[i]}"
-            elif [ "$i" -ge $(( ${#files[@]} - n )) ];then
-                printf '%s\n' "${files[i]}"
-            fi
-        done
+        printf '%s\n' "${files[@]}"
     else
         printf '\e[1;31mUnavailable\e[m\n'
+        if [ -e "$cache" ];then
+            printf 'Files: %s\n' "$(wc -l < "$cache")"
+            cat "$cache"
+        fi
     fi
 }
 function preview {

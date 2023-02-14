@@ -98,4 +98,6 @@ ctrl-b  : Go to first item of the list
 ctrl-t  : Go to last item of the list
 ctrl-p  : Play current line with `$PLAYER`
 ctrl-r  : Reload
+end     : Preview bottom
+home    : Preview top
 ```

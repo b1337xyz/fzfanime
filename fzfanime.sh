@@ -61,6 +61,7 @@ declare -r -x CACHE_DIR=~/.cache/fzfanime_preview
 declare -r -x FEH_FILE=/tmp/.fzfanime.feh
 declare -r -x FEH_WIDTH=255
 declare -r -x FEH_HEIGHT=380
+declare -r -x RE_EXT='.*\.\(webm\|mkv\|avi\|mp4\|ogm\|mpg\|rmvb\)$'
 ### END OF PREVIEW SETTINGS
 
 # shellcheck disable=SC1091
@@ -236,4 +237,6 @@ main "$@" | fzf -e --no-sort --color dark --cycle \
     --bind 'alt-c:reload(main continue)+first+change-prompt(CONTINUE )' \
     --bind 'alt-b:reload(main by_size)+first+change-prompt(BY SIZE )' \
     --bind 'alt-a:execute-silent(main add_watched {})+refresh-preview' \
-    --bind 'alt-d:execute-silent(main del_watched {})+refresh-preview'
+    --bind 'alt-d:execute-silent(main del_watched {})+refresh-preview' \
+    --bind 'end:preview-bottom' \
+    --bind 'home:preview-top'
