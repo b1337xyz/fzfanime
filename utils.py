@@ -10,8 +10,6 @@ import json
 HOME = os.getenv('HOME')
 ROOT = os.path.dirname(os.path.realpath(__file__))
 DATA_DIR = os.path.join(ROOT, 'data')
-if not os.path.exists(DATA_DIR):
-    os.mkdir(DATA_DIR)
 MALDB = os.path.join(DATA_DIR, 'maldb.json')
 ANIDB = os.path.join(DATA_DIR, 'anilist.json')
 CONFIG = os.path.join(ROOT, 'config')
@@ -21,6 +19,9 @@ JIKAN_API = 'https://api.jikan.moe/v4/anime'
 RED = '\033[1;31m'
 GRN = '\033[1;32m'
 END = '\033[m'
+
+if not os.path.exists(DATA_DIR):
+    os.mkdir(DATA_DIR)
 
 api_query = '''
 query ($id: Int, $page: Int, $perPage: Int, $search: String) {
