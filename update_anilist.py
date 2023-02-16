@@ -93,7 +93,7 @@ def main():
             anilist[title] = maldb[title].copy()
             anilist[title]['score'] = int(maldb[title]['score'] * 10)
 
-        if not anilist['score'] and title in maldb:
+        if not anilist[title]['score'] and title in maldb:
             anilist[title]['score'] = int(maldb[title]['score'] * 10)
 
         if not info:
