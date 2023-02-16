@@ -2,6 +2,7 @@
 from thefuzz import process
 from threading import Thread
 from glob import glob
+from shutil import copy
 import requests
 import os
 import re
@@ -89,11 +90,18 @@ def load_json(file: str) -> dict:
     try:
         with open(file, 'r') as fp:
             return json.load(fp)
-    except (json.decoder.JSONDecodeError, FileNotFoundError):
+    except json.decoder.JSONDecodeError:
+        bak = f'{file}.bak'
+        if os.path.exists(bak):
+            return load_json(bak)
+        else:
+            return dict()
+    except FileNotFoundError:
         return dict()
 
 
 def save_json(obj: dict, file: str):
+    copy(file, f'{file}.bak')
     with open(file, 'w') as fp:
         json.dump(obj, fp)
 

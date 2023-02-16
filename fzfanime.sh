@@ -10,11 +10,12 @@ function help {
 Usage: ${0##*/} [options ...]
 
 Options:
-    -u --update             update/create \$DB
-    -p --player <player>    video player (default: mpv)
-    -b --backend <backend>  image preview (default: ueberzug) (available: ueberzug kitty feh viu chafa)
-    -f --fallback <backend> if \$DISPLAY is unset fallback to <backend> (default: viu)
-    -h --help               show this message
+    -u --update             Update/create \$DB
+    -p --player <player>    Video player (default: mpv)
+    -b --backend <backend>  Image preview (default: ueberzug) (available: ueberzug kitty feh viu chafa)
+    -f --fallback <backend> If \$DISPLAY is unset fallback to <backend> (default: viu)
+    -c --clean              Remove entries where .fullpath does not exist
+    -h --help               Show this message
 
 Notes:
     - --option=value is not supported, use --option value
@@ -37,6 +38,7 @@ while [ $# -gt 0 ];do
         -b|--backend) shift; backend=$1 ;;
         -f|--fallback) shift; fallback=$1 ;;
         -u|--update) update; exit 0 ;;
+        -c|--clean) python3 tools/clean_db.py; exit 0 ;;
         -*) help ;;
     esac
     shift
