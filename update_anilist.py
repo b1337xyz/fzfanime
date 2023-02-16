@@ -91,7 +91,10 @@ def main():
         elif title in maldb:
             print('Falling back to maldb...')
             anilist[title] = maldb[title].copy()
-            anilist[title]['score'] = int(anilist[title]['score'] * 10)
+            anilist[title]['score'] = int(maldb[title]['score'] * 10)
+
+        if not anilist['score'] and title in maldb:
+            anilist[title]['score'] = int(maldb[title]['score'] * 10)
 
         if not info:
             print('Nothing found')

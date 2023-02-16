@@ -147,22 +147,22 @@ function main {
                 du -L --files0-from=- | sort -n | grep -oP '[^/]*$' | tee "$tempfile"
         ;;
         genre) 
-            printf "genres" > "$modefile"
+            printf genres > "$modefile"
             jq -r '.[] | .genres[] // "Unknown"' "$DB" | sort -u
             return
         ;;
         type)
-            printf "type" > "$modefile"
+            printf type > "$modefile"
             jq -r '.[] | .type // "Unknown"' "$DB" | sort -u
             return
         ;;
         rating)
-            printf 'rating' > "$modefile"
+            printf rating > "$modefile"
             jq -r '.[] | .rating // "Unknown"' "$DB" | sort -u
             return
         ;;
         path)
-            printf "path" > "$modefile"
+            printf path > "$modefile"
             jq -Mcr '.[].fullpath' "$DB" | grep -oP '.*(?=/.*/)' | sort -u
             return
         ;;
@@ -180,7 +180,7 @@ function main {
                 else
                     jq -r --arg mode "$curr_mode" --arg v "$2" 'keys[] as $k | select(.[$k][$mode] == $v) | $k' "$DB"
                 fi | tee "$tempfile"
-            elif [ "$curr_mode" = "path" ];then
+            elif [ "$curr_mode" = path ];then
                 jq -Mcr '.[].fullpath' "$DB" | grep -F "${2}/" | grep -oP '[^/]*$' | tee "$tempfile"
             else
                 play "$2"
