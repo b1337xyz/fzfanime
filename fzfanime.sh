@@ -163,7 +163,7 @@ function main {
         ;;
         path)
             printf "path" > "$modefile"
-            jq -Mcr '.[].fullpath' "$DB" | grep -oP '.*(?=/Anime/)' | sort -u
+            jq -Mcr '.[].fullpath' "$DB" | grep -oP '.*(?=/.*/)' | sort -u
             return
         ;;
         select)
