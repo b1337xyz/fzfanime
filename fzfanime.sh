@@ -83,7 +83,7 @@ function play {
     [ -e "$path" ] || return 1
 
     # save some cpu usage... maybe
-    [ "$BACKEND" = ueberzug ] && 
+    [ -S "$UEBERZUG_FIFO" ] && 
         printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
 
     echo "$1" >> "$ANIMEHIST"

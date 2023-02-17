@@ -6,7 +6,7 @@ function start_ueberzug {
 }
 function start_feh {
     # wait for the preview 
-    while ! [ -f "$FEH_FILE" ];do sleep 0.3; done
+    while ! [ -f "$FEH_FILE" ];do sleep 0.2; done
 
     # get current focused window
     active_window_id=$(xdotool getactivewindow)
@@ -39,27 +39,20 @@ function show_files {
     if [ -f "$MPVHIST" ];then
         last_ep=$(grep -F "/${key}/" "$MPVHIST" | tail -1)
         last_ep=${last_ep##*/}
-        if [ -f "${fullpath}/${last_ep}" ];then
-            printf 'Continue: \e[1;32m%s\e[m\n' "$last_ep"
-        fi
     fi
 
     cache="${CACHE_DIR}/${1}"
-    declare -a files=()
     if [ -e "$fullpath" ]; then
-        while IFS= read -r -d $'\0' i; do
-            files+=("$i")
-            printf '%s\n' "$i"
-        done < <(find "$fullpath" -iregex "$RE_EXT" -printf '%f\0' | sort -z) > "$cache"
-    fi
-
-    if [ "${#files[@]}" -gt 0 ];then
-        printf 'Files: %s\n' "${#files[@]}"
-        printf '%s\n' "${files[@]}"
+        find "$fullpath" -iregex "$RE_EXT" -printf '%f\n' | sort -V > "$cache"
     else
         printf '\e[1;31mUnavailable\e[m\n'
-        if [ -e "$cache" ];then
-            printf 'Files: %s\n' "$(wc -l < "$cache")"
+    fi
+
+    if [ -f "$cache" ];then
+        n=$(wc -l < "$cache")
+        if [ "$n" -gt 0 ]; then
+            [ -n "$last_ep" ] && printf 'Continue: \e[1;32m%s\e[m\n' "$last_ep"
+            printf 'Files: %s\n' "$n"
             cat "$cache"
         fi
     fi
@@ -68,7 +61,7 @@ function preview {
     IFS=$'\n' read -d '' -r title _type genres episodes score rated studios image fullpath < <(\
         jq -Mr --argjson k "\"$1\"" '.[$k] |
            "\(.title // "404")
-            \(.type)
+            \(.type // "Unknown")
             \(.genres | if length > 0 then . | join(", ") else "Unknown" end)
             \(.episodes // "Unknown")
             \(.score // "Unknown")
@@ -81,8 +74,7 @@ function preview {
         --stdin=no --clear --silent >/dev/null 2>&1 </dev/tty
 
     if [ "$title" = "404" ];then
-
-        [ "$BACKEND" = "ueberzug" ] &&
+        [ -S "$UEBERZUG_FIFO" ] &&
             printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
 
         printf "404 - preview not found\n\n"
@@ -91,19 +83,18 @@ function preview {
     watched=$(grep -xF "$1" "$WATCHED_FILE" || true)
     if ! [[ "$BACKEND" =~ viu|chafa ]];then
         printf '%'$WIDTH's %s\n'              ' ' "$title"
-        printf '%'$WIDTH's Type: %s\n'        ' ' "${_type:-Unknown}"
+        printf '%'$WIDTH's Type: %s\n'        ' ' "${_type}"
         printf '%'$WIDTH's Genre: %s\n'       ' ' "$genres"
         printf '%'$WIDTH's Episodes: %s\n'    ' ' "$episodes"
         printf '%'$WIDTH's Rated: %s\n'       ' ' "$rated"
         printf '%'$WIDTH's Score: %s\n'       ' ' "$score"
         printf '%'$WIDTH's Studios: %s\n'     ' ' "$studios"
 
-        if [ "$watched" ];then printf '%'$WIDTH's \e[1;32mWatched\e[m\n\r' ' '; else echo; fi
+        if [ -n "$watched" ];then printf '%'$WIDTH's \e[1;32mWatched\e[m\n\r' ' '; else echo; fi
     fi
 
-
     case "$BACKEND" in
-        feh) echo "$image" > "$FEH_FILE" ;;
+        feh) printf '%s\n' "$image" > "$FEH_FILE" ;;
         kitty)
             kitty icat --transfer-mode=file \
                 --stdin=no --silent --align=left --scale-up \
@@ -118,7 +109,7 @@ function preview {
             # `tput cup 0 0` and `viu -a -x 0 -y 0` does not work so i had to do this :(
             arr=(
                 "$title"
-                "Type: ${_type:-Unknown}"
+                "Type: ${_type}"
                 "Genre: $genres"
                 "Episodes: $episodes"
                 "Rated: $rated"
