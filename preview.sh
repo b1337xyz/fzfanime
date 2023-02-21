@@ -53,7 +53,7 @@ function show_files {
         if [ "$n" -gt 0 ]; then
             [ -n "$last_ep" ] && printf 'Continue: \e[1;32m%s\e[m\n' "$last_ep"
             printf 'Files: %s\n' "$n"
-            cat "$cache"
+            { head -4 "$cache"; tail -4 "$cache"; } | sort -uV
         fi
     fi
 }
