@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2155,SC2154,SC2086,SC2153
 function start_ueberzug {
     mkfifo "${UEBERZUG_FIFO}"
     tail --follow "$UEBERZUG_FIFO" | ueberzug layer --parser json 2>/dev/null &
@@ -24,6 +23,7 @@ function start_feh {
 }
 function finalise {
     jobs -p | xargs -r kill 2>/dev/null || true
+    # shellcheck disable=SC2154
     rm "$tempfile" "$mainfile" "$modefile" 2>/dev/null || true
     if [ -S "$UEBERZUG_FIFO" ];then
         printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
@@ -82,20 +82,22 @@ function preview {
     fi
     watched=$(grep -xF "$1" "$WATCHED_FILE" || true)
     if ! [[ "$BACKEND" =~ viu|chafa ]];then
-        printf '%'$WIDTH's %s\n'              ' ' "$title"
-        printf '%'$WIDTH's Type: %s\n'        ' ' "${_type}"
-        printf '%'$WIDTH's Genre: %s\n'       ' ' "$genres"
-        printf '%'$WIDTH's Episodes: %s\n'    ' ' "$episodes"
-        printf '%'$WIDTH's Rated: %s\n'       ' ' "$rated"
-        printf '%'$WIDTH's Score: %s\n'       ' ' "$score"
-        printf '%'$WIDTH's Studios: %s\n'     ' ' "$studios"
+        # shellcheck disable=SC2153
+        printf '%'"$WIDTH"'s %s\n'              ' ' "$title"
+        printf '%'"$WIDTH"'s Type: %s\n'        ' ' "${_type}"
+        printf '%'"$WIDTH"'s Genre: %s\n'       ' ' "$genres"
+        printf '%'"$WIDTH"'s Episodes: %s\n'    ' ' "$episodes"
+        printf '%'"$WIDTH"'s Rated: %s\n'       ' ' "$rated"
+        printf '%'"$WIDTH"'s Score: %s\n'       ' ' "$score"
+        printf '%'"$WIDTH"'s Studios: %s\n'     ' ' "$studios"
 
-        if [ -n "$watched" ];then printf '%'$WIDTH's \e[1;32mWatched\e[m\n\r' ' '; else echo; fi
+        if [ -n "$watched" ];then printf '%'"$WIDTH"'s \e[1;32mWatched\e[m\n\r' ' '; else echo; fi
     fi
 
     case "$BACKEND" in
         feh) printf '%s\n' "$image" > "$FEH_FILE" ;;
         kitty)
+            # shellcheck disable=SC2153
             kitty icat --transfer-mode=file \
                 --stdin=no --silent --align=left --scale-up \
                 --place "${WIDTH}x${HEIGHT}@0x0" "$image" >/dev/null 2>&1 </dev/tty
