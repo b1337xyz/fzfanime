@@ -28,7 +28,7 @@ EOF
 }
 function update {
     set -x
-    python3 update_maldb.py && python3 update_anilist.py
+    python3 tools/update_maldb.py && python3 tools/update_anilist.py
     set +x
 }
 
@@ -212,6 +212,7 @@ fi
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
 main "$@" | fzf -e --no-sort --color dark --cycle \
+    --border-label="fzfanime" \
     --border none --no-separator --prompt "NORMAL " \
     --preview 'preview {}' \
     --preview-window 'left:53%:border-none' \
