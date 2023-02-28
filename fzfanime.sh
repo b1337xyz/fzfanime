@@ -200,7 +200,7 @@ function main {
 }
 export -f main play
 
-trap finalise EXIT HUP INT
+trap finalise EXIT
 if [ -n "$DISPLAY" ];then
     case "$BACKEND" in
         ueberzug) start_ueberzug ;;
