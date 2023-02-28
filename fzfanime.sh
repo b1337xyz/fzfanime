@@ -79,7 +79,7 @@ declare -r -x tempfile=$(mktemp --dry-run)
 declare -r -x modefile=$(mktemp --dry-run)
 
 function play {
-    path=$(jq -Mcr --arg k "$1" '.[$k].fullpath' "$DB")
+    path=$(jq -r --arg k "$1" '.[$k].fullpath' "$DB")
     [ -e "$path" ] || return 1
 
     # save some cpu usage... maybe
@@ -107,7 +107,7 @@ function main {
             fi
         ;;
         avail)
-            grep -xFf <(jq -SMcr .[].fullpath "$DB" | while read -r i;do 
+            grep -xFf <(jq -Sr .[].fullpath "$DB" | while read -r i;do 
                     a=${i%/*}
                     [ "$a" = "$b" ] && continue
                     [ -e "$a" ] || { b=$a; continue; }
@@ -115,14 +115,14 @@ function main {
                 done) "$mainfile" | tee "$tempfile"
         ;;
         by_score)
-            grep -xFf "$mainfile" <(jq -Mcr \
+            grep -xFf "$mainfile" <(jq -r \
                 '[keys[] as $k | {id: $k, score: .[$k].score}] | sort_by(.score) | .[].id' "$DB") | tee "$tempfile"
         ;;
         by_year)
             sed 's/.*(\([0-9]\{4\}\)).*/\1;\0/g' "$mainfile" | sort -n | sed 's/^[0-9]\{4\}\;//g' | tee "$tempfile"
         ;;
         by_episodes)
-            grep -xFf "$mainfile" <(jq -Mcr '[keys[] as $k | {id: $k, episodes: .[$k].episodes}] | sort_by(.episodes)[] | .id' "$DB") | tee "$tempfile"
+            grep -xFf "$mainfile" <(jq -r '[keys[] as $k | {id: $k, episodes: .[$k].episodes}] | sort_by(.episodes)[] | .id' "$DB") | tee "$tempfile"
         ;;
         watched)
             grep -xFf "$mainfile" "$WATCHED_FILE" | tac | tee "$tempfile"
@@ -138,12 +138,12 @@ function main {
         ;;
         latest)
             keys=$(while read -r i;do printf '"%s",' "$i" ;done < "$mainfile")
-            jq -Mcr --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
+            jq -r --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
                 xargs -r0 ls --color=never -dN1tc 2>/dev/null | grep -oP '[^/]*$' | tee "$tempfile"
         ;;
         by_size)
             keys=$(while read -r i;do printf '"%s",' "$i" ;done < "$mainfile")
-            jq -Mcr --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
+            jq -r --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
                 du -L --files0-from=- | sort -n | grep -oP '[^/]*$' | tee "$tempfile"
         ;;
         genre) 
@@ -163,7 +163,7 @@ function main {
         ;;
         path)
             printf path > "$modefile"
-            jq -Mcr '.[].fullpath' "$DB" | grep -oP '.*(?=/.*/)' | sort -u
+            jq -r '.[].fullpath' "$DB" | grep -oP '.*(?=/.*/)' | sort -u
             return
         ;;
         select)
@@ -181,7 +181,7 @@ function main {
                     jq -r --arg mode "$curr_mode" --arg v "$2" 'keys[] as $k | select(.[$k][$mode] == $v) | $k' "$DB"
                 fi | tee "$tempfile"
             elif [ "$curr_mode" = path ];then
-                jq -Mcr '.[].fullpath' "$DB" | grep -F "${2}/" | grep -oP '[^/]*$' | tee "$tempfile"
+                jq -r '.[].fullpath' "$DB" | grep -F "${2}/" | grep -oP '[^/]*$' | tee "$tempfile"
             else
                 play "$2"
                 cat "$mainfile"
