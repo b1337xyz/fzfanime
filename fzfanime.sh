@@ -244,7 +244,7 @@ main "$@" | fzf -e --no-sort --color dark --cycle \
     --bind 'ctrl-y:reload(main by_year)+first+change-prompt(BY YEAR )' \
     --bind 'ctrl-s:reload(main by_score)+first+change-prompt(BY SCORE )' \
     --bind 'ctrl-e:reload(main by_episodes)+first+change-prompt(BY EPISODE )' \
-    --bind 'alt-m:reload(main menu)+first+change-prompt(SORT BY )' \
+    --bind 'alt-m:reload(main menu)+first+change-prompt(MENU )' \
     --bind 'alt-b:reload(main by_size)+first+change-prompt(BY SIZE )' \
     --bind 'alt-l:reload(main latest)+first+change-prompt(LATEST )' \
     --bind 'alt-p:reload(main path)+first+change-prompt(PATH )' \
