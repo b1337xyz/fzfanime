@@ -86,6 +86,7 @@ ctrl-w  : Load `$WATCHED_FILE`
 ctrl-v  : Select `type`
 alt-p   : Select `path`
 alt-r   : Select `rated`
+alt-m   : Change modes
 alt-b   : Sort by size
 alt-l   : Sort by ctime (time of last modification of file)
 ctrl-e  : Sort by episodes

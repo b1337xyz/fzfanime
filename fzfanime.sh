@@ -74,6 +74,7 @@ hash "$BACKEND" || { printf 'backend "%s" not found\n' "$BACKEND"; exit 1; }
 [ -e "$WATCHED_FILE" ] || :> "$WATCHED_FILE"
 [ -e "$ANIMEHIST" ] || :> "$ANIMEHIST"
 
+declare -r -x script=$0
 declare -r -x mainfile=$(mktemp --dry-run) 
 declare -r -x tempfile=$(mktemp --dry-run)
 declare -r -x modefile=$(mktemp --dry-run)
@@ -97,7 +98,6 @@ function play {
 function main {
     # grep -xFf <file1> <file2> ...  will keep the order of the second file
     
-    echo "$@" >> ~/foo
     case "$1" in
         shuffle) shuf "$mainfile"; return ;;
         add_watched)
@@ -168,14 +168,15 @@ function main {
             jq -r '.[].fullpath' "$DB" | grep -oP '.*(?=/.*/)' | sort -u
             return
         ;;
-        sort_by)
-            printf sort_by > "$modefile"
-            printf 'by_size\nby_episode\nby_year\nby_score\n'
+        menu)
+            printf menu > "$modefile"
+            grep -oP '(?<=\(main )\w+(?=\))' "$script" | sort -V
             return
         ;;
         select)
             curr_mode=$(<"$modefile")
-            if [ "$curr_mode" = sort_by ];then
+            if [ "$curr_mode" = menu ];then
+                curl -XPOST localhost:6266 -d "change-prompt(${2^^} )"
                 main "$2"
                 return
             elif [ "$curr_mode" = genres ];then
@@ -222,6 +223,7 @@ fi
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
 main "$@" | fzf -e --no-sort --color dark --cycle \
+    --listen 6266 \
     --border-label="fzfanime" \
     --border none --no-separator --prompt "NORMAL " \
     --preview 'preview {}' \
@@ -242,7 +244,7 @@ main "$@" | fzf -e --no-sort --color dark --cycle \
     --bind 'ctrl-y:reload(main by_year)+first+change-prompt(BY YEAR )' \
     --bind 'ctrl-s:reload(main by_score)+first+change-prompt(BY SCORE )' \
     --bind 'ctrl-e:reload(main by_episodes)+first+change-prompt(BY EPISODE )' \
-    --bind 'alt-m:reload(main sort_by)+first+change-prompt(SORT BY )' \
+    --bind 'alt-m:reload(main menu)+first+change-prompt(SORT BY )' \
     --bind 'alt-b:reload(main by_size)+first+change-prompt(BY SIZE )' \
     --bind 'alt-l:reload(main latest)+first+change-prompt(LATEST )' \
     --bind 'alt-p:reload(main path)+first+change-prompt(PATH )' \
