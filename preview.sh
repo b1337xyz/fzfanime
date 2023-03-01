@@ -30,6 +30,7 @@ function finalise {
         rm "$UEBERZUG_FIFO" 2>/dev/null
     fi
     [ -f "$FEH_IMAGE" ] && rm "$FEH_IMAGE"
+    exit 0
 }
 function show_files {
     key="$1"

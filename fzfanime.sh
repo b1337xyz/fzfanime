@@ -132,6 +132,11 @@ function main {
             jq -r --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
                 du -sL --files0-from=- | sort -n | grep -oP '[^/]*$' | tee "$tempfile"
         ;;
+        by_time)
+            keys=$(while read -r i;do printf '"%s",' "$i" ;done < "$mainfile")
+            jq -r --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
+                xargs -r0 ls --color=never -dN1tc 2>/dev/null | grep -oP '[^/]*$' | tee "$tempfile"
+        ;;
         watched)
             grep -xFf "$mainfile" "$WATCHED_FILE" | tac | tee "$tempfile"
         ;;
@@ -143,11 +148,6 @@ function main {
         ;;
         continue)
             grep -vxFf "$WATCHED_FILE" <(grep -xFf "$mainfile" <(tac "$ANIMEHIST" | awk '!seen[$0]++')) | tee "$tempfile"
-        ;;
-        latest)
-            keys=$(while read -r i;do printf '"%s",' "$i" ;done < "$mainfile")
-            jq -r --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
-                xargs -r0 ls --color=never -dN1tc 2>/dev/null | grep -oP '[^/]*$' | tee "$tempfile"
         ;;
         genre) 
             printf genres > "$modefile"
@@ -244,9 +244,9 @@ main "$@" | fzf -e --no-sort --color dark --cycle \
     --bind 'ctrl-y:reload(main by_year)+first+change-prompt(BY YEAR )' \
     --bind 'ctrl-s:reload(main by_score)+first+change-prompt(BY SCORE )' \
     --bind 'ctrl-e:reload(main by_episodes)+first+change-prompt(BY EPISODE )' \
-    --bind 'alt-m:reload(main menu)+first+change-prompt(MENU )' \
     --bind 'alt-b:reload(main by_size)+first+change-prompt(BY SIZE )' \
-    --bind 'alt-l:reload(main latest)+first+change-prompt(LATEST )' \
+    --bind 'alt-l:reload(main by_time)+first+change-prompt(BY TIME )' \
+    --bind 'alt-m:reload(main menu)+first+change-prompt(MENU )' \
     --bind 'alt-p:reload(main path)+first+change-prompt(PATH )' \
     --bind 'alt-r:reload(main rating)+first+change-prompt(RATING )' \
     --bind 'alt-s:reload(main shuffle)+first+change-prompt(SHUFFLED )' \
