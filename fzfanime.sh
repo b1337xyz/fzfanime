@@ -208,7 +208,7 @@ function main {
     esac
 
     [ -f "$modefile" ] && rm "$modefile"
-    [ -f "$tempfile" ] && mv -f "$tempfile" "$mainfile"
+    [ -f "$tempfile" ] && mv -f "$tempfile" "$mainfile"  # Make sure not to read and write the same file in the same pipeline
 }
 export -f main play
 
