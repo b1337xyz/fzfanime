@@ -96,6 +96,8 @@ function play {
 }
 function main {
     # grep -xFf <file1> <file2> ...  will keep the order of the second file
+    
+    echo "$@" >> ~/foo
     case "$1" in
         shuffle) shuf "$mainfile"; return ;;
         add_watched)
@@ -124,6 +126,11 @@ function main {
         by_episodes)
             grep -xFf "$mainfile" <(jq -r '[keys[] as $k | {id: $k, episodes: .[$k].episodes}] | sort_by(.episodes)[] | .id' "$DB") | tee "$tempfile"
         ;;
+        by_size)
+            keys=$(while read -r i;do printf '"%s",' "$i" ;done < "$mainfile")
+            jq -r --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
+                du -sL --files0-from=- | sort -n | grep -oP '[^/]*$' | tee "$tempfile"
+        ;;
         watched)
             grep -xFf "$mainfile" "$WATCHED_FILE" | tac | tee "$tempfile"
         ;;
@@ -140,11 +147,6 @@ function main {
             keys=$(while read -r i;do printf '"%s",' "$i" ;done < "$mainfile")
             jq -r --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
                 xargs -r0 ls --color=never -dN1tc 2>/dev/null | grep -oP '[^/]*$' | tee "$tempfile"
-        ;;
-        by_size)
-            keys=$(while read -r i;do printf '"%s",' "$i" ;done < "$mainfile")
-            jq -r --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
-                du -L --files0-from=- | sort -n | grep -oP '[^/]*$' | tee "$tempfile"
         ;;
         genre) 
             printf genres > "$modefile"
@@ -166,9 +168,17 @@ function main {
             jq -r '.[].fullpath' "$DB" | grep -oP '.*(?=/.*/)' | sort -u
             return
         ;;
+        sort_by)
+            printf sort_by > "$modefile"
+            printf 'by_size\nby_episode\nby_year\nby_score\n'
+            return
+        ;;
         select)
             curr_mode=$(<"$modefile")
-            if [ "$curr_mode" = genres ];then
+            if [ "$curr_mode" = sort_by ];then
+                main "$2"
+                return
+            elif [ "$curr_mode" = genres ];then
                 if [ "$2" = "Unknown" ];then
                     jq -r 'keys[] as $k | select(.[$k]["genres"] == []) | $k' "$DB"
                 else
@@ -217,28 +227,29 @@ main "$@" | fzf -e --no-sort --color dark --cycle \
     --preview 'preview {}' \
     --preview-window 'left:53%:border-none' \
     --header "^p ^s ^l ^r ^h ^w ^a ^e ^g ^v${n}A-p A-u A-c A-a A-d A-s A-b" \
+    --bind 'enter:reload(main select {})+clear-query' \
     --bind 'ctrl-t:last' \
     --bind 'ctrl-b:first' \
     --bind 'ctrl-d:delete-char' \
-    --bind 'enter:reload(main select {})+clear-query' \
     --bind 'ctrl-p:execute-silent(play {})' \
     --bind 'ctrl-r:reload(main)+first+change-prompt(NORMAL )' \
     --bind 'ctrl-h:reload(main adult)+first+change-prompt(ADULT )' \
     --bind 'ctrl-a:reload(main avail)+change-prompt(AVAILABLE )' \
-    --bind 'ctrl-y:reload(main by_year)+first+change-prompt(BY YEAR )' \
-    --bind 'ctrl-s:reload(main by_score)+first+change-prompt(BY SCORE )' \
-    --bind 'ctrl-e:reload(main by_episodes)+first+change-prompt(BY EPISODE )' \
     --bind 'ctrl-w:reload(main watched)+first+change-prompt(WATCHED )' \
     --bind 'ctrl-l:reload(main history)+first+change-prompt(HISTORY )' \
     --bind 'ctrl-g:reload(main genre)+first+change-prompt(GENRE )' \
     --bind 'ctrl-v:reload(main type)+first+change-prompt(TYPE )' \
+    --bind 'ctrl-y:reload(main by_year)+first+change-prompt(BY YEAR )' \
+    --bind 'ctrl-s:reload(main by_score)+first+change-prompt(BY SCORE )' \
+    --bind 'ctrl-e:reload(main by_episodes)+first+change-prompt(BY EPISODE )' \
+    --bind 'alt-m:reload(main sort_by)+first+change-prompt(SORT BY )' \
+    --bind 'alt-b:reload(main by_size)+first+change-prompt(BY SIZE )' \
     --bind 'alt-l:reload(main latest)+first+change-prompt(LATEST )' \
     --bind 'alt-p:reload(main path)+first+change-prompt(PATH )' \
     --bind 'alt-r:reload(main rating)+first+change-prompt(RATING )' \
     --bind 'alt-s:reload(main shuffle)+first+change-prompt(SHUFFLED )' \
     --bind 'alt-u:reload(main unwatched)+change-prompt(UNWATCHED )' \
     --bind 'alt-c:reload(main continue)+first+change-prompt(CONTINUE )' \
-    --bind 'alt-b:reload(main by_size)+first+change-prompt(BY SIZE )' \
     --bind 'alt-a:execute-silent(main add_watched {})+refresh-preview' \
     --bind 'alt-d:execute-silent(main del_watched {})+refresh-preview' \
     --bind 'end:preview-bottom' \
