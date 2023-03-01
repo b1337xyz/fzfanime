@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2155
+# shellcheck disable=SC2155,SC2034
 set -eo pipefail
 
 root=$(realpath "$0") root=${root%/*}
@@ -51,6 +51,7 @@ declare -r -x ANIMEHIST="${root}/data/anime_history.txt"
 declare -r -x WATCHED_FILE="${root}/data/watched_anime.txt"
 declare -r -x PLAYER=${player:-'mpv --profile=fzfanime'}
 declare -r -x BACKEND=${backend:-ueberzug}
+declare -r FZF_DEFAULT_OPTS="--listen=6266"  # requires fzf version >= 0.36.0
 ### END OF USER SETTINGS
 
 ### PREVIEW SETTINGS
@@ -223,9 +224,8 @@ fi
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
 main "$@" | fzf -e --no-sort --color dark --cycle \
-    --listen 6266 \
-    --border-label="fzfanime" \
-    --border none --no-separator --prompt "NORMAL " \
+    --border-label="fzfanime" --border none \
+    --no-separator --prompt "NORMAL " \
     --preview 'preview {}' \
     --preview-window 'left:53%:border-none' \
     --header "^p ^s ^l ^r ^h ^w ^a ^e ^g ^v${n}A-p A-u A-c A-a A-d A-s A-b" \
