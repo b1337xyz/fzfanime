@@ -26,18 +26,13 @@ Notes:
 EOF
     exit 0
 }
-function update {
-    set -x
-    python3 tools/update_maldb.py && python3 tools/update_anilist.py
-    set +x
-}
 
 while [ $# -gt 0 ];do
     case "$1" in
         -p|--player) shift; player=$1 ;;
         -b|--backend) shift; backend=$1 ;;
         -f|--fallback) shift; fallback=$1 ;;
-        -u|--update) update; exit 0 ;;
+        -u|--update) python3 tools/update.py; exit 0 ;;
         -c|--clean) python3 tools/clean_db.py; exit 0 ;;
         -*) help ;;
     esac
