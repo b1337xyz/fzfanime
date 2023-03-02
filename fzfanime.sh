@@ -84,10 +84,11 @@ function play {
         printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
 
     echo "$1" >> "$ANIMEHIST"
+    # shellcheck disable=SC2086
     if hash devour;then
-        devour "$PLAYER" "$path" >/dev/null 2>&1
+        devour $PLAYER "$path" >/dev/null 2>&1
     else
-        nohup  "$PLAYER" "$path" >/dev/null 2>&1 & disown
+        nohup  $PLAYER "$path" >/dev/null 2>&1 & disown
     fi
 }
 function main {
