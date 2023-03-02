@@ -46,7 +46,6 @@ declare -r -x ANIMEHIST="${root}/data/anime_history.txt"
 declare -r -x WATCHED_FILE="${root}/data/watched_anime.txt"
 declare -r -x PLAYER=${player:-'mpv --profile=fzfanime'}
 declare -r -x BACKEND=${backend:-ueberzug}
-declare -r FZF_DEFAULT_OPTS="--listen=6266"  # requires fzf version >= 0.36.0
 ### END OF USER SETTINGS
 
 ### PREVIEW SETTINGS
@@ -172,7 +171,7 @@ function main {
         select)
             curr_mode=$(<"$modefile")
             if [ "$curr_mode" = menu ];then
-                curl -XPOST localhost:6266 -d "change-prompt(${2^^} )"
+                # curl -XPOST localhost:6266 -d "change-prompt(${2^^} )"
                 main "$2"
                 return
             elif [ "$curr_mode" = genres ];then
