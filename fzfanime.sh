@@ -217,9 +217,10 @@ fi
 
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
-label="C-p C-s C-l C-r C-h C-w C-a C-e C-g C-v A-p A-m A-u A-c A-a A-d A-s A-b"
-main "$@" | fzf  --border=bottom --border-label="${label}" \
-    --border-label-pos=3:bottom --color=dark,label:blue \
+label="╢ c-p c-s c-l c-r c-h c-w c-a c-e c-g c-v │ a-p a-m a-u a-c a-a a-d a-s a-b ╟"
+main | fzf --border=bottom --border-label="${label}" \
+    --border-label-pos=3:center --color=dark \
+    --padding 0,0,2% \
     --prompt "NORMAL " \
     --preview 'preview {}' \
     --preview-window 'left:53%:border-none' \
