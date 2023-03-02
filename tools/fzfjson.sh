@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-declare -r -x anidb=../anilist.json
-declare -r -x maldb=../maldb.json
+declare -r -x anidb=../data/anilist.json
+declare -r -x maldb=../data/maldb.json
 
 preview() {
     echo "AniList"
@@ -11,4 +11,4 @@ preview() {
 }
 export -f preview
 
-jq -Mcr 'keys[]' "$anidb" | fzf --preview 'preview {}'
+jq -Mcr 'keys[]' "$maldb" | fzf --border none --preview-window 'right:border-left' --preview 'preview {}'

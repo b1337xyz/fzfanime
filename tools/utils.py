@@ -10,19 +10,22 @@ import json
 
 HOME = os.getenv('HOME')
 ROOT = os.path.dirname(os.path.realpath(__file__))
-DATA_DIR = os.path.join(ROOT, 'data')
+CONFIG = os.path.join(ROOT, '../config')
+DATA_DIR = os.path.join(ROOT, '../data')
 MALDB = os.path.join(DATA_DIR, 'maldb.json')
 ANIDB = os.path.join(DATA_DIR, 'anilist.json')
-CONFIG = os.path.join(ROOT, 'config')
 ANILIST_API = 'https://graphql.anilist.co'
 JIKAN_API = 'https://api.jikan.moe/v4/anime'
+MAL_COVERS = os.path.join(HOME, '.cache/mal_covers')
+ANI_COVERS = os.path.join(HOME, '.cache/anilist_covers')
 
 RED = '\033[1;31m'
 GRN = '\033[1;32m'
 END = '\033[m'
 
-if not os.path.exists(DATA_DIR):
-    os.mkdir(DATA_DIR)
+for d in [DATA_DIR, MAL_COVERS, ANI_COVERS]:
+    if not os.path.exists(d):
+        os.mkdir(d)
 
 api_query = '''
 query ($id: Int, $page: Int, $perPage: Int, $search: String) {

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Remove entries wich the symlink in <ANIME_DIR> does not exist anymore
+# Remove entries where .fullpath does not exist
 #
 from datetime import datetime
 from pathlib import Path
