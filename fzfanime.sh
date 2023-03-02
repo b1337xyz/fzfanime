@@ -46,6 +46,7 @@ declare -r -x ANIMEHIST="${root}/data/anime_history.txt"
 declare -r -x WATCHED_FILE="${root}/data/watched_anime.txt"
 declare -r -x PLAYER=${player:-'mpv --profile=fzfanime'}
 declare -r -x BACKEND=${backend:-ueberzug}
+declare -r FZF_DEFAULT_OPTS="--exact --no-separator --cycle --no-sort"
 ### END OF USER SETTINGS
 
 ### PREVIEW SETTINGS
@@ -83,11 +84,10 @@ function play {
         printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
 
     echo "$1" >> "$ANIMEHIST"
-    # shellcheck disable=SC2086
     if hash devour;then
-        devour $PLAYER "$path" >/dev/null 2>&1
+        devour "$PLAYER" "$path" >/dev/null 2>&1
     else
-        nohup  $PLAYER "$path" >/dev/null 2>&1 & disown
+        nohup  "$PLAYER" "$path" >/dev/null 2>&1 & disown
     fi
 }
 function main {
@@ -217,12 +217,12 @@ fi
 
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
-main "$@" | fzf -e --no-sort --color dark --cycle \
-    --border-label="fzfanime" --border none \
-    --no-separator --prompt "NORMAL " \
+label="C-p C-s C-l C-r C-h C-w C-a C-e C-g C-v A-p A-m A-u A-c A-a A-d A-s A-b"
+main "$@" | fzf  --border=bottom --border-label="${label}" \
+    --border-label-pos=3:bottom --color=dark,label:blue \
+    --prompt "NORMAL " \
     --preview 'preview {}' \
     --preview-window 'left:53%:border-none' \
-    --header "^p ^s ^l ^r ^h ^w ^a ^e ^g ^v${n}A-p A-u A-c A-a A-d A-s A-b" \
     --bind 'enter:reload(main select {})+clear-query' \
     --bind 'ctrl-t:last' \
     --bind 'ctrl-b:first' \
