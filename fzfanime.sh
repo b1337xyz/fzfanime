@@ -208,13 +208,7 @@ function main {
 }
 function finalise {
     jobs -p | xargs -r kill 2>/dev/null || true
-    # shellcheck disable=SC2154
-    rm "$tempfile" "$mainfile" "$modefile" 2>/dev/null || true
-    if [ -e "$UEBERZUG_FIFO" ];then
-        printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
-        rm "$UEBERZUG_FIFO" 2>/dev/null
-    fi
-    [ -f "$FEH_IMAGE" ] && rm "$FEH_IMAGE"
+    rm "$FEH_FILE" "$UEBERZUG_FIFO" "$tempfile" "$mainfile" "$modefile" 2>/dev/null || true
     exit 0
 }
 trap finalise EXIT

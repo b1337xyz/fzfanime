@@ -65,7 +65,7 @@ function preview {
 
     if [ "$title" = "null" ];then
         [ -e "$UEBERZUG_FIFO" ] &&
-            printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
+            printf '{"action": "remove", "identifier": "fzfanime"}\n' > "$UEBERZUG_FIFO"
 
         printf "404 - preview not found\n\n"
         return 0
@@ -94,7 +94,7 @@ function preview {
         ;;
         ueberzug) 
             printf '{"action": "add", "identifier": "%s", "x": 0, "y": 0, "width": %d, "height": %d, "scaler": "%s", "path": "%s"}\n' \
-                "preview" "$WIDTH" "$HEIGHT" "distort" "$image" > "$UEBERZUG_FIFO"
+                "fzfanime" "$WIDTH" "$HEIGHT" "distort" "$image" > "$UEBERZUG_FIFO"
         ;;
         viu|chafa)
             # https://github.com/atanunq/viu#from-source-recommended
