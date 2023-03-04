@@ -24,7 +24,7 @@ function start_feh {
 function show_files {
     key="$1"
     fullpath="$2"
-    printf '%s\n' "$fullpath"
+    # printf '%s\n' "${fullpath%/*}"
 
     if [ -f "$MPVHIST" ];then
         last_ep=$(grep -F "/${key}/" "$MPVHIST" | tail -1)

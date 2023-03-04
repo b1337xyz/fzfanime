@@ -218,7 +218,7 @@ function finalise {
 }
 
 export -f main play
-trap finalise EXIT
+trap finalise EXIT INT HUP
 if [ -n "$DISPLAY" ];then
     case "$BACKEND" in
         ueberzug) start_ueberzug ;;
@@ -229,7 +229,7 @@ fi
 
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
-label="╢ c-p c-s c-l c-r c-h c-w c-a c-e c-g c-v │ a-p a-m a-u a-c a-a a-d a-s a-b ╟"
+label="╢ c-p c-s c-l c-r c-h c-w c-a c-e c-g c-v   a-p a-m a-u a-c a-a a-d a-s a-b ╟"
 main | fzf --border=bottom --border-label="${label}" \
     --border-label-pos=3:center --color=dark \
     --padding 0,0,2% \
