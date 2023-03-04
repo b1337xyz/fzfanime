@@ -21,17 +21,6 @@ function start_feh {
     # unfocus feh
     sleep 0.5; xdotool windowactivate "$active_window_id"
 }
-function finalise {
-    jobs -p | xargs -r kill 2>/dev/null || true
-    # shellcheck disable=SC2154
-    rm "$tempfile" "$mainfile" "$modefile" 2>/dev/null || true
-    if [ -S "$UEBERZUG_FIFO" ];then
-        printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
-        rm "$UEBERZUG_FIFO" 2>/dev/null
-    fi
-    [ -f "$FEH_IMAGE" ] && rm "$FEH_IMAGE"
-    exit 0
-}
 function show_files {
     key="$1"
     fullpath="$2"

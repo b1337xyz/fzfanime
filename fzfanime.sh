@@ -205,8 +205,19 @@ function main {
     [ -f "$modefile" ] && rm "$modefile"
     [ -f "$tempfile" ] && mv -f "$tempfile" "$mainfile"  # Make sure not to read and write the same file in the same pipeline
 }
-export -f main play
+function finalise {
+    jobs -p | xargs -r kill 2>/dev/null || true
+    # shellcheck disable=SC2154
+    rm "$tempfile" "$mainfile" "$modefile" 2>/dev/null || true
+    if [ -S "$UEBERZUG_FIFO" ];then
+        printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
+        rm "$UEBERZUG_FIFO" 2>/dev/null
+    fi
+    [ -f "$FEH_IMAGE" ] && rm "$FEH_IMAGE"
+    exit 0
+}
 
+export -f main play
 trap finalise EXIT
 if [ -n "$DISPLAY" ];then
     case "$BACKEND" in
