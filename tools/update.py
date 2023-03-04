@@ -104,12 +104,6 @@ class Anilist:
         year = get_year(title)
         query = clean_str(title)
         info = self.search(query.lower())
-        if not info:
-            if title in maldb:  # fallback to maldb
-                info = maldb[title].copy()
-                info['score'] = int(info['score'] * 10)
-            return info
-
         info = self.filter_by_year(year, info) if year else info
         return fuzzy_sort(query, {
             i: d['title']['romaji'] for i, d in enumerate(info)
@@ -117,7 +111,9 @@ class Anilist:
 
     def update(self, title: str, fullpath: str, maldb: dict):
         info = self.get_info(title, maldb)
-        if not info:
+        if not info and title in maldb:
+            self.db[title] = maldb[title].copy()
+            self.db[title]['score'] = int(maldb[title]['score'] * 10)
             return
 
         score = info['averageScore']

@@ -148,10 +148,14 @@ def clean_str(s: str) -> str:
 
 
 def fuzzy_sort(query: str, options: dict, data: list) -> dict:
-    i = [
-        i[-1] for i in process.extract(query, options, limit=len(data))
-    ][0]
-    return data[i]
+    try:
+        k = [
+            i[-1] for i in process.extract(query, options, limit=len(data))
+            if i[1] > 50
+        ][0]
+        return data[k]
+    except IndexError:
+        return
 
 
 def get_year(title: str) -> int:

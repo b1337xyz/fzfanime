@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-#
-# Remove entries where .fullpath does not exist
-#
 from datetime import datetime
 from pathlib import Path
 import os
@@ -11,50 +8,28 @@ ROOT = os.path.dirname(os.path.realpath(__file__))
 MALDB = os.path.join(ROOT, '../data/maldb.json')
 ANIDB = os.path.join(ROOT, '../data/anilist.json')
 
-class DB:
-    def __init__(self, fpath):
-        self.fpath = fpath
-        self.fname = fpath.split('/')[-1]
-        print('>>>', self.fname)
-        self.read()
+def load_json(fpath):
+    with open(fpath, 'r') as f:
+        return json.load(f)
 
-    def backup(self):
-        if not self.db:
-            return
+def save_json(obj, fpath):
+    with open(fpath, 'w') as f:
+        json.dump(obj, f)
 
-        curr_time = datetime.now().strftime('%Y%m%d_%H%M%S')
-        fname = '{}_{}'.format(curr_time, self.fname)
-        fpath = os.path.join(HOME, fname)
-        with open(fpath, 'w') as fp:
-            json.dump(self.db, fp)
+maldb = load_json(MALDB)
+anidb = load_json(ANIDB)
+keys = list(anidb)
+before = len(keys)
+for k in keys:
+    fullpath = Path(anidb[k]['fullpath'])
+    parent = fullpath.parent
+    if parent.exists() and not fullpath.exists():
+        del anidb[k]
+        del maldb[k]
+        print('{} removed'.format(k))
 
-    def read(self):
-        try:
-            with open(self.fpath, 'r') as fp:
-                self.db = json.load(fp)
-        except FileNotFoundError:
-            exit(1)
-
-    def write(self):
-        # self.backup()
-        with open(self.fpath, 'w') as fp:
-            json.dump(self.db, fp)
-
-    def clean(self):
-        db = self.db.copy()
-        before = len(db)
-        for k in db:
-            fullpath = Path(self.db[k]['fullpath'])
-            parent = fullpath.parent
-            if parent.exists() and not fullpath.exists():
-                del self.db[k]
-                print('{} removed'.format(k))
-
-        after = len(self.db)
-        print('{} entries removed'.format(before - after))
-        if before - after > 0:
-            self.write()
-
-
-DB(MALDB).clean()
-DB(ANIDB).clean()
+after = len(anidb)
+if before != after:
+    print('{} entries removed'.format(before - after))
+    save_json(anidb, ANIDB)
+    save_json(maldb, MALDB)
