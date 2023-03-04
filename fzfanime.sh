@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2155,SC2034
 set -eo pipefail
+echo -ne "\033]0;fzfanime.sh\007"
 
 root=$(realpath "$0") root=${root%/*}
 cd "$root"
@@ -209,16 +210,15 @@ function finalise {
     jobs -p | xargs -r kill 2>/dev/null || true
     # shellcheck disable=SC2154
     rm "$tempfile" "$mainfile" "$modefile" 2>/dev/null || true
-    if [ -S "$UEBERZUG_FIFO" ];then
+    if [ -e "$UEBERZUG_FIFO" ];then
         printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
         rm "$UEBERZUG_FIFO" 2>/dev/null
     fi
     [ -f "$FEH_IMAGE" ] && rm "$FEH_IMAGE"
     exit 0
 }
-
+trap finalise EXIT
 export -f main play
-trap finalise EXIT INT HUP
 if [ -n "$DISPLAY" ];then
     case "$BACKEND" in
         ueberzug) start_ueberzug ;;
@@ -226,7 +226,6 @@ if [ -n "$DISPLAY" ];then
     esac
 fi
 
-echo -ne "\033]0;fzfanime.sh\007"
 
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
@@ -236,7 +235,7 @@ main | fzf --border=bottom --border-label="${label}" \
     --padding 0,0,2% \
     --prompt "NORMAL " \
     --preview 'preview {}' \
-    --preview-window 'left:53%:border-sharp' \
+    --preview-window 'left:53%:border-none' \
     --bind 'enter:reload(main select {})+clear-query' \
     --bind 'ctrl-t:last' \
     --bind 'ctrl-b:first' \

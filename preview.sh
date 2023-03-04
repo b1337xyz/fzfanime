@@ -50,7 +50,7 @@ function show_files {
 function preview {
     IFS=$'\n' read -d '' -r title _type genres episodes score rated studios image fullpath < <(\
         jq -Mr --argjson k "\"$1\"" '.[$k] |
-           "\(.title // "404")
+           "\(.title)
             \(.type // "Unknown")
             \(.genres | if length > 0 then . | join(", ") else "Unknown" end)
             \(.episodes // "Unknown")
@@ -63,8 +63,8 @@ function preview {
     [ "$BACKEND" = "kitty" ] && kitty icat --transfer-mode=file \
         --stdin=no --clear --silent >/dev/null 2>&1 </dev/tty
 
-    if [ "$title" = "404" ];then
-        [ -S "$UEBERZUG_FIFO" ] &&
+    if [ "$title" = "null" ];then
+        [ -e "$UEBERZUG_FIFO" ] &&
             printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
 
         printf "404 - preview not found\n\n"
