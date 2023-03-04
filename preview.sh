@@ -24,7 +24,7 @@ function start_feh {
 function show_files {
     key="$1"
     fullpath="$2"
-    # printf '%s\n' "${fullpath%/*}"
+    printf '%s\n' "${fullpath%/*}"
 
     if [ -f "$MPVHIST" ];then
         last_ep=$(grep -F "/${key}/" "$MPVHIST" | tail -1)
@@ -33,7 +33,7 @@ function show_files {
 
     cache="${CACHE_DIR}/${1}"
     if [ -e "$fullpath" ]; then
-        find "$fullpath" -iregex "$RE_EXT" -printf '%f\n' | sort -V > "$cache"
+        find -L "$fullpath" -iregex "$RE_EXT" -printf '%f\n' | sort -V > "$cache"
     else
         printf '\e[1;31mUnavailable\e[m\n'
     fi

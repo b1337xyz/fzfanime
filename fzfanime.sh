@@ -226,6 +226,7 @@ if [ -n "$DISPLAY" ];then
     esac
 fi
 
+echo -ne "\033]0;fzfanime.sh\007"
 
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
