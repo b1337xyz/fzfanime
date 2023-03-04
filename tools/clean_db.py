@@ -20,10 +20,16 @@ maldb = load_json(MALDB)
 anidb = load_json(ANIDB)
 keys = list(anidb)
 before = len(keys)
+skip = []
 for k in keys:
     fullpath = Path(anidb[k]['fullpath'])
     parent = fullpath.parent
-    if parent.exists() and not fullpath.exists():
+    if parent in skip:
+        continue
+    if not parent.exists():
+        skip.append(parent)
+        continue
+    if not fullpath.exists():
         del anidb[k]
         del maldb[k]
         print('{} removed'.format(k))
