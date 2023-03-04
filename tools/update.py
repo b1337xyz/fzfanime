@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from utils import *
 from urllib.parse import quote
-from time import sleep
 
 
 class MAL:
@@ -159,7 +158,6 @@ def main():
         print(f'[{idx}/{total}] {title}')
         mal.update(title, fullpath)
         anilist.update(title, fullpath, mal.db)
-        sleep(0.3)
 
     fill_the_gaps(anilist.db, mal.db)
     save_json(anilist.db, ANIDB)
