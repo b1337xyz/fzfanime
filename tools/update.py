@@ -9,10 +9,8 @@ class MAL:
         self.db = load_json(MALDB)
 
     def request(self, url: str) -> dict:
-        sleep(0.5)
-        data = session.get(url).json()
         try:
-            return data['data']
+            return session.get(url).json()['data']
         except KeyError:
             return
 
@@ -28,14 +26,12 @@ class MAL:
         if malid:
             malid = malid.group(1)
             url = f'https://api.jikan.moe/v4/anime/{malid}'
-            try:
-                return self.request(url)
-            except Exception:
-                pass
+            return self.request(url)
 
         year = get_year(title)
         query = clean_str(title)
         if len(query) < 3:
+            print(f'Query length less than 3: {query = }')
             return
 
         url = '{}?q={}'.format(JIKAN_API, quote(query.lower()))
@@ -55,8 +51,8 @@ class MAL:
 
         year = info['year'] if info['year'] else \
             info["aired"]["prop"]["from"]["year"]
-        image = info['images']['jpg']['large_image_url']
-        image = save_image(image, MAL_COVERS)
+        image = save_image(info['images']['jpg']['large_image_url'],
+                           MAL_COVERS)
         rating = None if not info['rating'] else info['rating'].split()[0]
         self.db[title] = {
             'anilist_id': None,
@@ -81,7 +77,6 @@ class Anilist:
         self.db = load_json(ANIDB)
 
     def search_by_id(self, mal_id: int) -> dict:
-        sleep(0.5)
         variables = {'idMal': mal_id, 'page': 1, 'perPage': 10}
         data = session.post(ANILIST_API, json={
             'query': api_query_by_malid, 'variables': variables
@@ -89,7 +84,6 @@ class Anilist:
         return data['data']['Page']['media'][0]
 
     def search(self, query: str) -> dict:
-        sleep(0.5)
         variables = {'search': query, 'page': 1, 'perPage': 20}
         data = session.post(ANILIST_API, json={
             'query': api_query, 'variables': variables
@@ -112,7 +106,7 @@ class Anilist:
         query = clean_str(title)
         info = self.search(query.lower())
         if not info:
-            if title in maldb:
+            if title in maldb:  # fallback to maldb
                 info = maldb[title].copy()
                 info['score'] = int(info['score'] * 10)
             return info
@@ -126,8 +120,9 @@ class Anilist:
         info = self.get_info(title, maldb)
         if not info:
             return
+
         score = info['averageScore']
-        if not score and title in maldb:
+        if not score and title in maldb and maldb[title]['score']:
             score = int(maldb[title]['score'] * 10)
 
         self.db[title] = {
@@ -155,7 +150,7 @@ def main():
     anilist = Anilist()
     titles = [i for i in get_titles() if i[1] not in mal.db]
     if not titles:
-        print('Nothing to do')
+        print('Nothing new.')
         return
 
     total = len(titles)
@@ -164,6 +159,7 @@ def main():
         print(f'[{idx}/{total}] {title}')
         mal.update(title, fullpath)
         anilist.update(title, fullpath, mal.db)
+        sleep(0.3)
 
     fill_the_gaps(anilist.db, mal.db)
     save_json(anilist.db, ANIDB)

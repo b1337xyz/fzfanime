@@ -95,10 +95,7 @@ def load_json(file: str) -> dict:
             return json.load(fp)
     except json.decoder.JSONDecodeError:
         bak = f'{file}.bak'
-        if os.path.exists(bak):
-            return load_json(bak)
-        else:
-            return dict()
+        return load_json(bak)
     except FileNotFoundError:
         return dict()
 
