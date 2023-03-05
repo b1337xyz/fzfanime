@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2155,SC2034
-set -ueo pipefail
+set -eo pipefail
 
 echo -ne "\033]0;fzfanime.sh\007"
 root=$(realpath "$0") root=${root%/*}
@@ -63,13 +63,14 @@ declare -r -x FEH_HEIGHT=380
 declare -r -x RE_EXT='.*\.\(webm\|mkv\|avi\|mp4\|ogm\|mpg\|rmvb\)$'
 ### END OF PREVIEW SETTINGS
 
+[ -e "$DB" ]           || python3 tools/update.py
+[ -d "$CACHE_DIR" ]    || mkdir -p "$CACHE_DIR"
+[ -e "$WATCHED_FILE" ] || :> "$WATCHED_FILE"
+[ -e "$ANIMEHIST" ]    || :> "$ANIMEHIST"
+hash "$BACKEND"        || { printf 'backend "%s" not found\n' "$BACKEND"; exit 1; }
+
 # shellcheck disable=SC1091
 source preview.sh || { printf 'Failed to source %s\n' "${root}/preview.sh"; exit 1; }
-hash "$BACKEND" || { printf 'backend "%s" not found\n' "$BACKEND"; exit 1; }
-[ -e "$DB" ] || python3 tools/update.py
-[ -d "$CACHE_DIR" ] || mkdir -p "$CACHE_DIR"
-[ -e "$WATCHED_FILE" ] || :> "$WATCHED_FILE"
-[ -e "$ANIMEHIST" ] || :> "$ANIMEHIST"
 
 declare -r -x script=$0
 declare -r -x mainfile=$(mktemp --dry-run) 
