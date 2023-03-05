@@ -4,12 +4,13 @@ from urllib.parse import quote
 
 
 class MAL:
-    def __init__(self):
+    def __init__(self, session):
         self.db = load_json(MALDB)
+        self.session = session
 
     def request(self, url: str) -> dict:
         try:
-            return session.get(url).json()['data']
+            return self.session.get(url).json()['data']
         except KeyError:
             return
 
@@ -72,19 +73,20 @@ class MAL:
 
 
 class Anilist:
-    def __init__(self):
+    def __init__(self, session):
         self.db = load_json(ANIDB)
+        self.session = session
 
     def search_by_id(self, mal_id: int) -> dict:
         variables = {'idMal': mal_id, 'page': 1, 'perPage': 10}
-        data = session.post(ANILIST_API, json={
+        data = self.session.post(ANILIST_API, json={
             'query': api_query_by_malid, 'variables': variables
         }).json()
         return data['data']['Page']['media'][0]
 
     def search(self, query: str) -> dict:
         variables = {'search': query, 'page': 1, 'perPage': 20}
-        data = session.post(ANILIST_API, json={
+        data = self.session.post(ANILIST_API, json={
             'query': api_query, 'variables': variables
         }).json()
         return data['data']['Page']['media']
@@ -113,7 +115,8 @@ class Anilist:
         info = self.get_info(title, maldb)
         if not info and title in maldb:
             self.db[title] = maldb[title].copy()
-            self.db[title]['score'] = int(maldb[title]['score'] * 10)
+            if maldb[title]['score']:
+                self.db[title]['score'] = int(maldb[title]['score'] * 10)
             return
 
         score = info['averageScore']
@@ -139,10 +142,9 @@ class Anilist:
 
 
 def main():
-    global session
     session = requests.Session()
-    mal = MAL()
-    anilist = Anilist()
+    mal = MAL(session)
+    anilist = Anilist(session)
     titles = [i for i in get_titles() if i[1] not in mal.db]
     if not titles:
         print('Nothing new.')
