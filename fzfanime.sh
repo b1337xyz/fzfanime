@@ -47,7 +47,7 @@ declare -r -x ANIMEHIST="${root}/data/anime_history.txt"
 declare -r -x WATCHED_FILE="${root}/data/watched_anime.txt"
 declare -r -x PLAYER=${player:-'mpv --profile=fzfanime'}
 declare -r -x BACKEND=${backend:-ueberzug}
-declare -r FZF_DEFAULT_OPTS="--exact --no-separator --cycle --no-sort --no-hscroll --no-scrollbar"
+declare -r FZF_DEFAULT_OPTS="--exact --no-separator --cycle --no-sort --no-hscroll --no-scrollbar --color=dark"
 ### END OF USER SETTINGS
 
 ### PREVIEW SETTINGS
@@ -226,7 +226,7 @@ n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
 label="╢ c-p c-s c-l c-r c-h c-w c-a c-e c-g c-v   a-p a-m a-u a-c a-a a-d a-s a-b ╟"
 main _ | fzf --border=bottom --border-label="${label}" \
-    --border-label-pos=3:center --color=dark \
+    --border-label-pos=3:center \
     --padding 0,0,2% \
     --prompt "NORMAL " \
     --preview 'preview {}' \
