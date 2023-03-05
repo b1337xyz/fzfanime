@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2155,SC2034
 set -eo pipefail
-echo -ne "\033]0;fzfanime.sh\007"
 
+echo -ne "\033]0;fzfanime.sh\007"
 root=$(realpath "$0") root=${root%/*}
 cd "$root"
 
