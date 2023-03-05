@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2155,SC2034
-set -eo pipefail
+set -ueo pipefail
 
 echo -ne "\033]0;fzfanime.sh\007"
 root=$(realpath "$0") root=${root%/*}
@@ -224,7 +224,7 @@ fi
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
 label="╢ c-p c-s c-l c-r c-h c-w c-a c-e c-g c-v   a-p a-m a-u a-c a-a a-d a-s a-b ╟"
-main | fzf --border=bottom --border-label="${label}" \
+main _ | fzf --border=bottom --border-label="${label}" \
     --border-label-pos=3:center --color=dark \
     --padding 0,0,2% \
     --prompt "NORMAL " \
