@@ -66,7 +66,7 @@ declare -r -x RE_EXT='.*\.\(webm\|mkv\|avi\|mp4\|ogm\|mpg\|rmvb\)$'
 # shellcheck disable=SC1091
 source preview.sh || { printf 'Failed to source %s\n' "${root}/preview.sh"; exit 1; }
 hash "$BACKEND" || { printf 'backend "%s" not found\n' "$BACKEND"; exit 1; }
-[ -e "$DB" ] || update
+[ -e "$DB" ] || python3 tools/update.py
 [ -d "$CACHE_DIR" ] || mkdir -p "$CACHE_DIR"
 [ -e "$WATCHED_FILE" ] || :> "$WATCHED_FILE"
 [ -e "$ANIMEHIST" ] || :> "$ANIMEHIST"

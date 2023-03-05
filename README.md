@@ -3,15 +3,15 @@
 Usage: fzfanime.sh [options ...]
 
 Options:
-    -u --update             update/create $DB
-    -p --player <player>    video player (default: mpv)
-    -b --backend <backend>  image preview (default: ueberzug) (available: ueberzug kitty feh viu chafa)
-    -f --fallback <backend> if $DISPLAY is unset fallback to <backend> (default: viu)
-    -h --help               show this message
+    -u --update             Update/create $DB
+    -p --player <player>    Video player (default: mpv)
+    -b --backend <backend>  Image preview (default: ueberzug) (available: ueberzug kitty feh viu chafa)
+    -f --fallback <backend> If $DISPLAY is unset fallback to <backend> (default: viu)
+    -c --clean              Remove entries where .fullpath does not exist
+    -h --help               Show this message
 
 Notes:
     - --option=value is not supported, use --option value
-    - Before running fzfanime.sh create "$DB"
     - $DB generated using Anilist APIv2 -> https://anilist.gitbook.io/anilist-apiv2-docs
       and Jikan APIv4 -> https://api.jikan.moe/v4/anime
     - By default AniList is used as main database
