@@ -8,6 +8,7 @@ Options:
     -b --backend <backend>  Image preview (default: ueberzug) (available: ueberzug kitty feh viu chafa)
     -f --fallback <backend> If $DISPLAY is unset fallback to <backend> (default: viu)
     -c --clean              Remove entries where .fullpath does not exist
+    -e --edit               edit config file
     -h --help               Show this message
 
 Notes:
