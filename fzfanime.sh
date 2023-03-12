@@ -16,6 +16,7 @@ Options:
     -b --backend <backend>  Image preview (default: ueberzug) (available: ueberzug kitty feh viu chafa)
     -f --fallback <backend> If \$DISPLAY is unset fallback to <backend> (default: viu)
     -c --clean              Remove entries where .fullpath does not exist
+    -e --edit               edit config file
     -h --help               Show this message
 
 Notes:
@@ -33,6 +34,7 @@ while [ $# -gt 0 ];do
         -p|--player) shift; player=$1 ;;
         -b|--backend) shift; backend=$1 ;;
         -f|--fallback) shift; fallback=$1 ;;
+        -e|--edit) "${EDITOR:-vi}" config; exit 0 ;;
         -u|--update) python3 tools/update.py; exit 0 ;;
         -c|--clean) python3 tools/clean_db.py; exit 0 ;;
         -*) help ;;
@@ -63,10 +65,10 @@ declare -r -x FEH_HEIGHT=380
 declare -r -x RE_EXT='.*\.\(webm\|mkv\|avi\|mp4\|ogm\|mpg\|rmvb\)$'
 ### END OF PREVIEW SETTINGS
 
-[ -e "$DB" ]           || python3 tools/update.py
-[ -d "$CACHE_DIR" ]    || mkdir -p "$CACHE_DIR"
+[ -e "$DB" ]           || { "${EDITOR:-vi}" "${root}/config"; python3 tools/update.py; }
 [ -e "$WATCHED_FILE" ] || :> "$WATCHED_FILE"
 [ -e "$ANIMEHIST" ]    || :> "$ANIMEHIST"
+[ -d "$CACHE_DIR" ]    || mkdir -p "$CACHE_DIR"
 hash "$BACKEND"        || { printf 'backend "%s" not found\n' "$BACKEND"; exit 1; }
 
 # shellcheck disable=SC1091
