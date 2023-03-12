@@ -47,7 +47,7 @@ done
 declare -r -x DB="${root}/data/anilist.json"
 declare -r -x ANIMEHIST="${root}/data/anime_history.txt"
 declare -r -x WATCHED_FILE="${root}/data/watched_anime.txt"
-declare -r -x PLAYER=${player:-'mpv --profile=fzfanime'}
+declare -r -x PLAYER=${player:-'mpv'}
 declare -r -x BACKEND=${backend:-ueberzug}
 declare -r FZF_DEFAULT_OPTS="--exact --no-separator --cycle --no-sort --no-hscroll --no-scrollbar --color=dark"
 ### END OF USER SETTINGS
