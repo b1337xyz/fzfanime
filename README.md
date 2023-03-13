@@ -9,6 +9,7 @@ Options:
     -f --fallback <backend> If $DISPLAY is unset fallback to <backend> (default: viu)
     -c --clean              Remove entries where .fullpath does not exist
     -e --edit               Edit the config file
+    -q --quit-on-play       Quit fzf when playing
     -h --help               Show this message
 
 Notes:
