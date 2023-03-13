@@ -16,7 +16,8 @@ Options:
     -b --backend <backend>  Image preview (default: ueberzug) (available: ueberzug kitty feh viu chafa)
     -f --fallback <backend> If \$DISPLAY is unset fallback to <backend> (default: viu)
     -c --clean              Remove entries where .fullpath does not exist
-    -e --edit               edit config file
+    -e --edit               Edit the config file
+    -q --quit-on-play       Quit fzf when playing
     -h --help               Show this message
 
 Notes:
@@ -37,6 +38,7 @@ while [ $# -gt 0 ];do
         -e|--edit) "${EDITOR:-vi}" config; exit 0 ;;
         -u|--update) python3 tools/update.py; exit 0 ;;
         -c|--clean) python3 tools/clean_db.py; exit 0 ;;
+        -q|--quit-on-play) declare -r -x quit_on_play=y ;;
         -*) help ;;
     esac
     shift
@@ -47,7 +49,7 @@ done
 declare -r -x DB="${root}/data/anilist.json"
 declare -r -x ANIMEHIST="${root}/data/anime_history.txt"
 declare -r -x WATCHED_FILE="${root}/data/watched_anime.txt"
-declare -r -x PLAYER=${player:-'mpv'}
+declare -r -x PLAYER=${player:-'mpv --profile=fzfanime'}
 declare -r -x BACKEND=${backend:-ueberzug}
 declare -r FZF_DEFAULT_OPTS="--exact --no-separator --cycle --no-sort --no-hscroll --no-scrollbar --color=dark"
 ### END OF USER SETTINGS
@@ -74,6 +76,7 @@ hash "$BACKEND"        || { printf 'backend "%s" not found\n' "$BACKEND"; exit 1
 # shellcheck disable=SC1091
 source preview.sh || { printf 'Failed to source %s\n' "${root}/preview.sh"; exit 1; }
 
+declare -r -x pid=$$
 declare -r -x script=$0
 declare -r -x mainfile=$(mktemp --dry-run) 
 declare -r -x tempfile=$(mktemp --dry-run)
@@ -89,11 +92,13 @@ function play {
 
     echo "$1" >> "$ANIMEHIST"
     # shellcheck disable=SC2086
-    if hash devour;then
+    if hash devour && [ -z "$quit_on_play" ];then
         devour $PLAYER "$path" >/dev/null 2>&1
     else
         nohup  $PLAYER "$path" >/dev/null 2>&1 & disown
     fi
+
+    [ "$quit_on_play" ] && sleep 1 && kill "$pid"
 }
 function main {
     # grep -xFf <file1> <file2> ...  will keep the order of the second file
