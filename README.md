@@ -1,4 +1,6 @@
 # *fzfanime*
+A Command Line Interface to browse and watch anime locally.
+
 ```
 Usage: fzfanime.sh [options ...]
 
