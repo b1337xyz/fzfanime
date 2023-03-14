@@ -57,10 +57,10 @@ declare -r FZF_DEFAULT_OPTS="--exact --no-separator --cycle --no-sort --no-hscro
 ### PREVIEW SETTINGS
 declare -r -x W3MIMGDISPLAY=/usr/lib/w3m/w3mimgdisplay
 declare -r -x UEBERZUG_FIFO=$(mktemp --dry-run --suffix "fzf-$$-ueberzug")
-declare -r -x WIDTH=32  # image width
-declare -r -x HEIGHT=20
+declare -r -x WIDTH=30  # image width
+declare -r -x HEIGHT=18
 declare -r -x MPVHIST=~/.cache/mpv/mpvhistory.log
-declare -r -x CACHE_DIR=~/.cache/fzfanime_preview
+declare -r -x CACHE_DIR="${root}/preview"
 declare -r -x FEH_FILE=/tmp/.fzfanime.feh
 declare -r -x FEH_WIDTH=255
 declare -r -x FEH_HEIGHT=380
@@ -132,12 +132,12 @@ function main {
             grep -xFf "$mainfile" <(jq -r '[keys[] as $k | {id: $k, episodes: .[$k].episodes}] | sort_by(.episodes)[] | .id' "$DB") | tee "$tempfile"
         ;;
         by_size)
-            keys=$(while read -r i;do printf '"%s",' "$i" ;done < "$mainfile")
+            keys=$(awk '{printf("\"%s\",", $0)}' "$mainfile")
             jq -r --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
                 du -sL --files0-from=- | sort -n | grep -oP '[^/]*$' | tee "$tempfile"
         ;;
         by_time)
-            keys=$(while read -r i;do printf '"%s",' "$i" ;done < "$mainfile")
+            keys=$(awk '{printf("\"%s\",", $0)}' "$mainfile")
             jq -r --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
                 xargs -r0 ls --color=never -dN1tc 2>/dev/null | grep -oP '[^/]*$' | tee "$tempfile"
         ;;

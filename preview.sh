@@ -5,7 +5,7 @@ function start_ueberzug {
 }
 function start_feh {
     # wait for the preview 
-    while ! [ -f "$FEH_FILE" ];do sleep 0.2; done
+    while ! [ -f "$FEH_FILE" ];do sleep 0.3; done
 
     # get current focused window
     active_window_id=$(xdotool getactivewindow)
@@ -29,6 +29,7 @@ function show_files {
     if [ -f "$MPVHIST" ];then
         last_ep=$(grep -F "/${key}/" "$MPVHIST" | tail -1)
         last_ep=${last_ep##*/}
+        [ -n "$last_ep" ] && printf 'Continue: \e[1;32m%s\e[m\n' "$last_ep"
     fi
 
     cache="${CACHE_DIR}/${1}"
@@ -41,9 +42,8 @@ function show_files {
     if [ -f "$cache" ];then
         n=$(wc -l < "$cache")
         if [ "$n" -gt 0 ]; then
-            [ -n "$last_ep" ] && printf 'Continue: \e[1;32m%s\e[m\n' "$last_ep"
             printf 'Files: %s\n' "$n"
-            { head -4 "$cache"; tail -4 "$cache"; } | sort -uV
+            { head -5 "$cache"; tail -5 "$cache"; } | sort -uV
         fi
     fi
 }
@@ -114,9 +114,9 @@ function preview {
             else
                 viu -s -w "$WIDTH" -h "$HEIGHT" "$image"
             fi | while read -r str; do
-                printf '%s ' "$str"
+                printf '%s' "$str"
                 if [ "$i" -lt "${#arr[@]}" ]; then
-                    printf '%s ' "${arr[i]}"
+                    printf ' %s ' "${arr[i]}"
                 elif [ "$i" -eq "${#arr[@]}" ]; then
                     [ -n "$watched" ] && printf '\033[1;32m Watched \033[m'
                 fi
@@ -134,6 +134,6 @@ function preview {
 
     [[ "$BACKEND" =~ viu|chafa ]] || for _ in {1..13};do echo; done
     # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
-    show_files "$1" "$fullpath" &
+    show_files "$1" "$fullpath"
 }
 export -f preview show_files
