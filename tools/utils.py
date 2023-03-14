@@ -3,6 +3,7 @@ from thefuzz import process
 from threading import Thread
 from glob import glob
 from shutil import copy
+from pathlib import Path
 import requests
 import os
 import re
@@ -12,18 +13,17 @@ HOME = os.getenv('HOME')
 ROOT = os.path.dirname(os.path.realpath(__file__))
 CONFIG = os.path.join(ROOT, '../config')
 DATA_DIR = os.path.join(ROOT, '../data')
+IMG_DIR = os.path.realpath(os.path.join(ROOT, '../images'))
 MALDB = os.path.join(DATA_DIR, 'maldb.json')
 ANIDB = os.path.join(DATA_DIR, 'anilist.json')
 ANILIST_API = 'https://graphql.anilist.co'
 JIKAN_API = 'https://api.jikan.moe/v4/anime'
-MAL_COVERS = os.path.join(HOME, '.cache/mal_covers')
-ANI_COVERS = os.path.join(HOME, '.cache/anilist_covers')
 
 RED = '\033[1;31m'
 GRN = '\033[1;32m'
 END = '\033[m'
 
-for d in [DATA_DIR, MAL_COVERS, ANI_COVERS]:
+for d in [DATA_DIR, IMG_DIR]:
     if not os.path.exists(d):
         os.mkdir(d)
 
@@ -112,13 +112,12 @@ def download(url: str, image: str):
         fp.write(r.content)
 
 
-def save_image(url: str, path: str) -> str:
-    image = os.path.join(path, url.split('/')[-1])
+def save_image(url: str, filename: str) -> str:
+    image = os.path.join(IMG_DIR, filename)
     if os.path.exists(image):
         return image
 
-    t = Thread(target=download, args=(url, image))
-    t.start()
+    Thread(target=download, args=(url, image)).start()
     return image
 
 

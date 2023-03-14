@@ -49,11 +49,15 @@ class MAL:
         if not info:
             return
 
+        url = info['images']['jpg']['large_image_url']
+        filename = f'mal-{info["mal_id"]}.jpg'
+        image = save_image(url, filename)
+
         year = info['year'] if info['year'] else \
             info["aired"]["prop"]["from"]["year"]
-        image = save_image(info['images']['jpg']['large_image_url'],
-                           MAL_COVERS)
+
         rating = None if not info['rating'] else info['rating'].split()[0]
+
         self.db[title] = {
             'anilist_id': None,
             'duration': None,
@@ -119,6 +123,10 @@ class Anilist:
                 self.db[title]['score'] = int(maldb[title]['score'] * 10)
             return
 
+        url = info['coverImage']['large']
+        filename = f'anilist-{info["id"]}.jpg'
+        image = save_image(url, filename)
+
         score = info['averageScore']
         if not score and title in maldb and maldb[title]['score']:
             score = int(maldb[title]['score'] * 10)
@@ -128,7 +136,7 @@ class Anilist:
             'duration': info['duration'],
             'episodes': info['episodes'],
             'genres': info['genres'],
-            'image': save_image(info['coverImage']['large'], ANI_COVERS),
+            'image': image,
             'is_adult': info['isAdult'],
             'mal_id': info['idMal'],
             'rating': None,
