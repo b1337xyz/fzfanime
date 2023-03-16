@@ -103,6 +103,7 @@ def load_json(file: str) -> dict:
 def save_json(obj: dict, file: str):
     if os.path.exists(file):
         copy(file, f'{file}.bak')
+
     with open(file, 'w') as fp:
         json.dump(obj, fp)
 
