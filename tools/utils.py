@@ -171,3 +171,8 @@ def fill_the_gaps(a: dict, b: dict):
         for v in a[k]:
             if not a[k][v] and k in b and b[k][v]:
                 a[k][v] = b[k][v]
+
+    for k in b:
+        for v in b[k]:
+            if not b[k][v] and k in a and a[k][v]:
+                b[k][v] = a[k][v]

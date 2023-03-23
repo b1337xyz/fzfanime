@@ -162,13 +162,13 @@ def main():
     for idx, tmp in enumerate(titles, start=1):
         fullpath, title = tmp
         print(f'[{idx}/{total}] {title}')
+
         mal.update(title, fullpath)
         anilist.update(title, fullpath, mal.db)
 
-    fill_the_gaps(anilist.db, mal.db)
-    save_json(anilist.db, ANIDB)
-    fill_the_gaps(mal.db, anilist.db)
-    save_json(mal.db, MALDB)
+        fill_the_gaps(anilist.db, mal.db)
+        save_json(anilist.db, ANIDB)
+        save_json(mal.db, MALDB)
 
 
 if __name__ == '__main__':
