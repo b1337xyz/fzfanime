@@ -39,10 +39,11 @@ function show_files {
         printf '\e[1;31mUnavailable\e[m\n'
     fi
 
+    size=$(du -h "$fullpath" | awk '{print $1}')
     if [ -f "$cache" ];then
         n=$(wc -l < "$cache")
         if [ "$n" -gt 0 ]; then
-            printf 'Files: %s\n' "$n"
+            printf 'Files: %s\tSize: %s\n' "$n" "$size"
             { head -5 "$cache"; tail -5 "$cache"; } | sort -uV
         fi
     fi
@@ -60,6 +61,7 @@ function preview {
             \(.image)
             \(.fullpath)"' "$DB" 2>/dev/null | sed 's/^\s*//')
 
+    [ -f "$image" ] || printf 'Image not found\r'
     [ "$BACKEND" = "kitty" ] && kitty icat --transfer-mode=file \
         --stdin=no --clear --silent >/dev/null 2>&1 </dev/tty
 
@@ -132,7 +134,7 @@ function preview {
         ;;
     esac
 
-    [[ "$BACKEND" =~ viu|chafa ]] || for _ in {1..13};do echo; done
+    [[ "$BACKEND" =~ viu|chafa ]] || for _ in {1..11};do echo; done
     # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
     show_files "$1" "$fullpath"
 }

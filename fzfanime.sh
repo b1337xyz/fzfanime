@@ -81,6 +81,7 @@ declare -r -x script=$0
 declare -r -x mainfile=$(mktemp --dry-run) 
 declare -r -x tempfile=$(mktemp --dry-run)
 declare -r -x modefile=$(mktemp --dry-run)
+declare -r -x goback=${mainfile}.bak
 
 function play {
     path=$(jq -r --arg k "$1" '.[$k].fullpath' "$DB")
@@ -129,7 +130,8 @@ function main {
             sed 's/.*(\([0-9]\{4\}\)).*/\1;\0/g' "$mainfile" | sort -n | sed 's/^[0-9]\{4\}\;//g' | tee "$tempfile"
         ;;
         by_episodes)
-            grep -xFf "$mainfile" <(jq -r '[keys[] as $k | {id: $k, episodes: .[$k].episodes}] | sort_by(.episodes)[] | .id' "$DB") | tee "$tempfile"
+            grep -xFf "$mainfile" <(jq -r '[keys[] as $k |
+                {id: $k, episodes: .[$k].episodes}] | sort_by(.episodes)[] | .id' "$DB") | tee "$tempfile"
         ;;
         by_size)
             keys=$(awk '{printf("\"%s\",", $0)}' "$mainfile")
@@ -152,6 +154,11 @@ function main {
         ;;
         continue)
             grep -vxFf "$WATCHED_FILE" <(grep -xFf "$mainfile" <(tac "$ANIMEHIST" | awk '!seen[$0]++')) | tee "$tempfile"
+        ;;
+        [0-9]*)
+            m=$(( $1 + 10 ))
+            grep -Ff < <(jq --argjson n "$1" --argjson m "$m" -Sr 'keys[] as $k |
+                select(.[$k].score >= $n and .[$k].score < $m) | $k' "$DB") "$mainfile" | tee "$tempfile"
         ;;
         genre) 
             printf genres > "$modefile"
@@ -178,6 +185,7 @@ function main {
             grep -oP '(?<=\(main )\w+(?=\))' "$script" | sort -V
             return
         ;;
+        go_back) cat "$goback"; return ;;
         select)
             curr_mode=$(<"$modefile")
             if [ "$curr_mode" = menu ];then
@@ -204,19 +212,20 @@ function main {
             fi
         ;;
         adult)
-            jq -Sr 'keys[] as $k | select(.[$k].is_adult) | $k' "$DB" | tee "$mainfile"
+            jq -Sr 'keys[] as $k | select(.[$k].is_adult) | $k' "$DB" | tee "$tempfile"
         ;;
         *)
-            jq -Sr 'keys[] as $k | select(.[$k].is_adult | not) | $k' "$DB" | tee "$mainfile"
+            jq -Sr 'keys[] as $k | select(.[$k].is_adult | not) | $k' "$DB" | tee "$tempfile"
         ;;
     esac
 
     [ -f "$modefile" ] && rm "$modefile"
-    [ -f "$tempfile" ] && mv -f "$tempfile" "$mainfile"  # Make sure not to read and write the same file in the same pipeline
+    [ -f "$mainfile" ] && cp "$mainfile" "$goback"
+    cp "$tempfile" "$mainfile"  # Make sure not to read and write the same file in the same pipeline
 }
 function finalise {
     jobs -p | xargs -r kill 2>/dev/null || true
-    rm "$FEH_FILE" "$UEBERZUG_FIFO" "$tempfile" "$mainfile" "$modefile" 2>/dev/null || true
+    rm "$FEH_FILE" "$UEBERZUG_FIFO" "$tempfile" "$mainfile" "$goback" "$modefile" 2>/dev/null || true
     exit 0
 }
 trap finalise EXIT
@@ -231,7 +240,7 @@ fi
 
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
-label="╢ c-p c-s c-l c-r c-h c-w c-a c-e c-g c-v   a-p a-m a-u a-c a-a a-d a-s a-b ╟"
+label="╢ f[0-9] c-p c-s c-l c-r c-h c-w c-a c-e c-g c-v   a-p a-m a-u a-c a-a a-d a-s a-b ╟"
 main _ | fzf --border=bottom --border-label="${label}" \
     --border-label-pos=3:center \
     --padding 0,0,2% \
@@ -263,5 +272,14 @@ main _ | fzf --border=bottom --border-label="${label}" \
     --bind 'alt-c:reload(main continue)+first+change-prompt(CONTINUE )' \
     --bind 'alt-a:execute-silent(main add_watched {})+refresh-preview' \
     --bind 'alt-d:execute-silent(main del_watched {})+refresh-preview' \
+    --bind 'f2:reload(main 20)+refresh-preview' \
+    --bind 'f3:reload(main 30)+refresh-preview' \
+    --bind 'f4:reload(main 40)+refresh-preview' \
+    --bind 'f5:reload(main 50)+refresh-preview' \
+    --bind 'f6:reload(main 60)+refresh-preview' \
+    --bind 'f7:reload(main 70)+refresh-preview' \
+    --bind 'f8:reload(main 80)+refresh-preview' \
+    --bind 'f9:reload(main 90)+refresh-preview' \
+    --bind 'tab:reload(main go_back)+refresh-preview' \
     --bind 'end:preview-bottom' \
     --bind 'home:preview-top'
