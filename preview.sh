@@ -34,16 +34,16 @@ function show_files {
 
     cache="${CACHE_DIR}/${1}"
     if [ -e "$fullpath" ]; then
+        size=$(du -h "$fullpath" 2>/dev/null | awk '{print $1}')
         find -L "$fullpath" -iregex "$RE_EXT" -printf '%f\n' | sort -V > "$cache"
     else
         printf '\e[1;31mUnavailable\e[m\n'
     fi
 
-    size=$(du -h "$fullpath" | awk '{print $1}')
     if [ -f "$cache" ];then
         n=$(wc -l < "$cache")
         if [ "$n" -gt 0 ]; then
-            printf 'Files: %s\tSize: %s\n' "$n" "$size"
+            printf 'Files: %s\tSize: %s\n' "$n" "${size:-Unknown}"
             { head -5 "$cache"; tail -5 "$cache"; } | sort -uV
         fi
     fi

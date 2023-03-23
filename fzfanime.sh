@@ -220,8 +220,10 @@ function main {
     esac
 
     [ -f "$modefile" ] && rm "$modefile"
-    [ -f "$mainfile" ] && cp "$mainfile" "$goback"
-    cp "$tempfile" "$mainfile"  # Make sure not to read and write the same file in the same pipeline
+    if [ -s "$tempfile" ];then
+        [ -f "$mainfile" ] && cp "$mainfile" "$goback"
+        mv -f "$tempfile" "$mainfile"  # Make sure not to read and write the same file in the same pipeline
+    fi
 }
 function finalise {
     jobs -p | xargs -r kill 2>/dev/null || true
