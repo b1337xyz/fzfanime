@@ -53,9 +53,7 @@ class MAL:
         filename = f'mal-{info["mal_id"]}.jpg'
         image = save_image(url, filename)
 
-        year = info['year'] if info['year'] else \
-            info["aired"]["prop"]["from"]["year"]
-
+        year = info.get('year', info["aired"]["prop"]["from"]["year"])
         rating = None if not info['rating'] else info['rating'].split()[0]
 
         self.db[title] = {
@@ -72,6 +70,7 @@ class MAL:
             'title': clean_str(info['title']),
             'type': info['type'],
             'year': year,
+            'aired': info['aired']['from'],
             'fullpath': fullpath
         }
 
@@ -145,6 +144,7 @@ class Anilist:
             'title': clean_str(info['title']['romaji']),
             'type': None,
             'year': info['startDate']['year'],
+            'aired': None,
             'fullpath': fullpath
         }
 
