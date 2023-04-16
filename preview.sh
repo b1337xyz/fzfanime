@@ -75,13 +75,13 @@ function preview {
     watched=$(grep -xF "$1" "$WATCHED_FILE" || true)
     if ! [[ "$BACKEND" =~ viu|chafa ]];then
         # shellcheck disable=SC2153
-        printf '%'"$WIDTH"'s %s\n'              ' ' "$title"
-        printf '%'"$WIDTH"'s Type: %s\n'        ' ' "${_type}"
-        printf '%'"$WIDTH"'s Genre: %s\n'       ' ' "$genres"
-        printf '%'"$WIDTH"'s Episodes: %s\n'    ' ' "$episodes"
-        printf '%'"$WIDTH"'s Rated: %s\n'       ' ' "$rated"
-        printf '%'"$WIDTH"'s Score: %s\n'       ' ' "$score"
-        printf '%'"$WIDTH"'s Studios: %s\n'     ' ' "$studios"
+        printf '%'"$WIDTH"'s %s\n'           ' ' "$title"
+        printf '%'"$WIDTH"'s Type: %s\n'     ' ' "${_type}"
+        printf '%'"$WIDTH"'s Genre: %s\n'    ' ' "$genres"
+        printf '%'"$WIDTH"'s Episodes: %s\n' ' ' "$episodes"
+        printf '%'"$WIDTH"'s Rated: %s\n'    ' ' "$rated"
+        printf '%'"$WIDTH"'s Score: %s\n'    ' ' "$score"
+        printf '%'"$WIDTH"'s Studios: %s\n'  ' ' "$studios"
 
         if [ -n "$watched" ];then printf '%'"$WIDTH"'s \e[1;32mWatched\e[m\n\r' ' '; else echo; fi
     fi

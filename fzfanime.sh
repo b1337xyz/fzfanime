@@ -127,7 +127,9 @@ function main {
                 '[keys[] as $k | {id: $k, score: .[$k].score}] | sort_by(.score) | .[].id' "$DB") | tee "$tempfile"
         ;;
         by_year)
-            sed 's/.*(\([0-9]\{4\}\)).*/\1;\0/g' "$mainfile" | sort -n | sed 's/^[0-9]\{4\}\;//g' | tee "$tempfile"
+            # sed 's/.*(\([0-9]\{4\}\)).*/\1;\0/g' "$mainfile" | sort -n | sed 's/^[0-9]\{4\}\;//g' | tee "$tempfile"
+            grep -xFf "$mainfile" < <(jq -r \
+                '[keys[] as $k | {id: $k, aired: .[$k].aired}] | sort_by(.aired) | .[].id' "$DB") | tee "$tempfile"
         ;;
         by_episodes)
             grep -xFf "$mainfile" <(jq -r '[keys[] as $k |
