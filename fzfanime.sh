@@ -250,7 +250,7 @@ main _ | fzf --border=bottom --border-label="${label}" \
     --padding 0,0,2% \
     --prompt "NORMAL " \
     --preview 'preview {}' \
-    --preview-window 'left:53%:border-none' \
+    --preview-window 'left:53%:border-right' \
     --bind 'enter:reload(main select {})+clear-query' \
     --bind 'ctrl-t:last' \
     --bind 'ctrl-b:first' \
