@@ -34,7 +34,7 @@ function show_files {
 
     cache="${CACHE_DIR}/${1}"
     if [ -e "$fullpath" ]; then
-        size=$(du -h "$fullpath" 2>/dev/null | awk '{print $1}')
+        size=$(du -sh "$fullpath" 2>/dev/null | awk '{print $1}')
         find -L "$fullpath" -iregex "$RE_EXT" -printf '%f\n' | sort -V > "$cache"
     else
         printf '\e[1;31mUnavailable\e[m\n'
@@ -116,9 +116,9 @@ function preview {
             else
                 viu -s -w "$WIDTH" -h "$HEIGHT" "$image"
             fi | while read -r str; do
-                printf '%s' "$str"
+                printf '%s\b ' "$str"
                 if [ "$i" -lt "${#arr[@]}" ]; then
-                    printf ' %s ' "${arr[i]}"
+                    printf '%s' "${arr[i]}"
                 elif [ "$i" -eq "${#arr[@]}" ]; then
                     [ -n "$watched" ] && printf '\033[1;32m Watched \033[m'
                 fi
