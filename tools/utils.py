@@ -3,7 +3,6 @@ from thefuzz import process
 from threading import Thread
 from glob import glob
 from shutil import copy
-from pathlib import Path
 import requests
 import os
 import re
@@ -16,8 +15,6 @@ DATA_DIR = os.path.join(ROOT, '../data')
 IMG_DIR = os.path.realpath(os.path.join(ROOT, '../images'))
 MALDB = os.path.join(DATA_DIR, 'maldb.json')
 ANIDB = os.path.join(DATA_DIR, 'anilist.json')
-ANILIST_API = 'https://graphql.anilist.co'
-JIKAN_API = 'https://api.jikan.moe/v4/anime'
 
 RED = '\033[1;31m'
 GRN = '\033[1;32m'
@@ -27,10 +24,10 @@ for d in [DATA_DIR, IMG_DIR]:
     if not os.path.exists(d):
         os.mkdir(d)
 
-api_query = '''
-query ($id: Int, $page: Int, $perPage: Int, $search: String) {
+API_QUERY = '''
+query ($idMal: Int, $search: String, $page: Int, $perPage: Int) {
     Page (page: $page, perPage: $perPage) {
-        media (id: $id, search: $search, sort: SEARCH_MATCH, type: ANIME) {
+        media (idMal: $idMal, search: $search, sort: SEARCH_MATCH, type: ANIME) {
             id
             idMal
             isAdult
@@ -56,37 +53,7 @@ query ($id: Int, $page: Int, $perPage: Int, $search: String) {
         }
     }
 }
-'''
-api_query_by_malid = '''
-query ($id: Int, $idMal: Int, $page: Int, $perPage: Int) {
-    Page (page: $page, perPage: $perPage) {
-        media (id: $id, idMal: $idMal, sort: SEARCH_MATCH, type: ANIME) {
-            id
-            idMal
-            isAdult
-            title {
-                romaji
-            }
-            startDate {
-                year
-            }
-            genres
-            episodes
-            duration
-            averageScore
-            description(asHtml: false)
-            coverImage {
-                large
-            }
-            studios (sort: NAME, isMain: true) {
-                nodes {
-                    name
-                }
-            }
-        }
-    }
-}
-'''
+'''.strip()
 
 
 def load_json(file: str) -> dict:
@@ -167,12 +134,12 @@ def get_year(title: str) -> int:
 
 
 def fill_the_gaps(a: dict, b: dict):
+    """ Replace empty values (None) from `a` with `b` and vice versa """
     for k in a:
         for v in a[k]:
             if not a[k][v] and k in b and b[k][v]:
                 a[k][v] = b[k][v]
 
-    for k in b:
-        for v in b[k]:
-            if not b[k][v] and k in a and a[k][v]:
+        for v in b.get(k, []):
+            if not b[k][v] and a[k][v]:
                 b[k][v] = a[k][v]

@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 from utils import *
 from urllib.parse import quote
+from time import sleep
 
 
 class MAL:
     def __init__(self, session):
         self.db = load_json(MALDB)
         self.session = session
+        self.api = 'https://api.jikan.moe/v4/anime/'
 
-    def request(self, url: str) -> dict:
-        try:
-            return self.session.get(url).json()['data']
-        except KeyError:
-            return
+    def search(self, query: str = None, mal_id: int = None) -> dict:
+        print(f' --- Jikan {query = }, {mal_id = }')
+        url = self.api + f'?q={quote(query)}' if query else mal_id
+        return self.session.get(url).json().get('data')
 
     def filter_by_year(self, year: int, data: list) -> list:
         by_year = [
@@ -22,11 +23,8 @@ class MAL:
         return by_year if by_year else data
 
     def get_info(self, title: str) -> dict:
-        malid = re.search(r'\[malid-(\d+)\]', title)
-        if malid:
-            malid = malid.group(1)
-            url = f'https://api.jikan.moe/v4/anime/{malid}'
-            return self.request(url)
+        if (idMal := re.search(r'\[malid-(\d+)\]', title)) is not None:
+            return self.search(idMal=idMal.group(1))
 
         year = get_year(title)
         query = clean_str(title)
@@ -34,9 +32,7 @@ class MAL:
             print(f'Query length less than 3: {query = }')
             return
 
-        url = '{}?q={}'.format(JIKAN_API, quote(query.lower()))
-        info = self.request(url)
-        if not info:
+        if (info := self.search(query.lower())) is None:
             return
 
         info = self.filter_by_year(year, info) if year else info
@@ -63,7 +59,7 @@ class MAL:
             'genres': [i['name'] for i in info['genres']],
             'image': image,
             'is_adult': rating == "Rx",
-            'mal_id': info['mal_id'],
+            'mal_id': int(info['mal_id']),
             'rating': rating,
             'score': info['score'],
             'studios': [i['name'] for i in info['studios']],
@@ -79,18 +75,13 @@ class Anilist:
     def __init__(self, session):
         self.db = load_json(ANIDB)
         self.session = session
+        self.api = 'https://graphql.anilist.co'
 
-    def search_by_id(self, mal_id: int) -> dict:
-        variables = {'idMal': mal_id, 'page': 1, 'perPage': 10}
-        data = self.session.post(ANILIST_API, json={
-            'query': api_query_by_malid, 'variables': variables
-        }).json()
-        return data['data']['Page']['media'][0]
-
-    def search(self, query: str) -> dict:
-        variables = {'search': query, 'page': 1, 'perPage': 20}
-        data = self.session.post(ANILIST_API, json={
-            'query': api_query, 'variables': variables
+    def search(self, **variables) -> dict:
+        variables.update({'page': 1, 'perPage': 15})
+        print(' --- Anilist', variables)
+        data = self.session.post(self.api, json={
+            'query': API_QUERY, 'variables': variables
         }).json()
         return data['data']['Page']['media']
 
@@ -98,37 +89,34 @@ class Anilist:
         by_year = [i for i in data if i['startDate']['year'] == year]
         return by_year if by_year else data
 
-    def get_info(self, title: str, maldb: dict) -> dict:
-        if title in maldb:
-            malid = int(maldb[title]['mal_id'])
+    def get_info(self, title: str, mal_id: int = None) -> dict:
+        if mal_id:
             try:
-                return self.search_by_id(malid)
-            except Exception:
+                return self.search(idMal=mal_id)[0]
+            except IndexError:
                 pass
 
         year = get_year(title)
         query = clean_str(title)
-        info = self.search(query.lower())
+        info = self.search(search=query.lower())
         info = self.filter_by_year(year, info) if year else info
         return fuzzy_sort(query, {
             i: d['title']['romaji'] for i, d in enumerate(info)
         }, info)
 
-    def update(self, title: str, fullpath: str, maldb: dict):
-        info = self.get_info(title, maldb)
-        if not info and title in maldb:
-            self.db[title] = maldb[title].copy()
-            if maldb[title]['score']:
-                self.db[title]['score'] = int(maldb[title]['score'] * 10)
+    def update(self, title: str, fullpath: str, fallback: dict):
+        info = self.get_info(title, fallback.get('mal_id'))
+        if not info and fallback:
+            fallback['score'] *= 10  # bug: score can be None?
+            self.db[title] = fallback
             return
 
         url = info['coverImage']['large']
         filename = f'anilist-{info["id"]}.jpg'
         image = save_image(url, filename)
 
-        score = info['averageScore']
-        if not score and title in maldb and maldb[title]['score']:
-            score = int(maldb[title]['score'] * 10)
+        if (score := info['averageScore']) is None:
+            score = fallback.get('score', 0) * 10
 
         self.db[title] = {
             'anilist_id': info['id'],
@@ -164,11 +152,12 @@ def main():
         print(f'[{idx}/{total}] {title}')
 
         mal.update(title, fullpath)
-        anilist.update(title, fullpath, mal.db)
+        anilist.update(title, fullpath, mal.db.get(title, {}).copy())
 
         fill_the_gaps(anilist.db, mal.db)
         save_json(anilist.db, ANIDB)
         save_json(mal.db, MALDB)
+        sleep(0.3)
 
 
 if __name__ == '__main__':
