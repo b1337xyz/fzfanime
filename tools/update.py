@@ -1,7 +1,141 @@
 #!/usr/bin/env python3
-from utils import *
 from urllib.parse import quote
 from time import sleep
+from thefuzz import process
+from threading import Thread
+from glob import glob
+from shutil import copy
+import requests
+import os
+import re
+import json
+
+ROOT = os.path.dirname(os.path.realpath(__file__))
+CONFIG = os.path.join(ROOT, '../config')
+DATA_DIR = os.path.join(ROOT, '../data')
+IMG_DIR = os.path.realpath(os.path.join(ROOT, '../images'))
+MALDB = os.path.join(DATA_DIR, 'maldb.json')
+ANIDB = os.path.join(DATA_DIR, 'anilist.json')
+API_QUERY = '''
+query ($idMal: Int, $search: String, $page: Int, $perPage: Int) {
+    Page (page: $page, perPage: $perPage) {
+        media (idMal: $idMal, search: $search, sort: SEARCH_MATCH, type: ANIME) {
+            id
+            idMal
+            isAdult
+            title {
+                romaji
+            }
+            startDate {
+                year
+            }
+            genres
+            episodes
+            duration
+            averageScore
+            description(asHtml: false)
+            coverImage {
+                large
+            }
+            studios (sort: NAME, isMain: true) {
+                nodes {
+                    name
+                }
+            }
+        }
+    }
+}
+'''.strip()  # noqa: E501
+
+
+def load_json(file: str) -> dict:
+    try:
+        with open(file, 'r') as f:
+            return json.load(f)
+    except json.decoder.JSONDecodeError:
+        bak = f'{file}.bak'
+        return load_json(bak)
+    except FileNotFoundError:
+        return dict()
+
+
+def save_json(obj: dict, file: str):
+    if os.path.exists(file):
+        copy(file, f'{file}.bak')
+    with open(file, 'w') as f:
+        json.dump(obj, f)
+
+
+def download(url: str, image: str):
+    r = requests.get(url)
+    with open(image, 'wb') as fp:
+        fp.write(r.content)
+
+
+def save_image(url: str, filename: str) -> str:
+    image = os.path.join(IMG_DIR, filename)
+    if os.path.exists(image):
+        return image
+
+    Thread(target=download, args=(url, image)).start()
+    return image
+
+
+def get_titles() -> list:
+    print('Searching... ', flush=True, end='')
+    with open(CONFIG, 'r') as f:
+        config = [os.path.expanduser(i) for i in map(str.strip, f)
+                  if i and not i.startswith('#')]
+
+    files = []
+    for path in config:
+        if os.path.exists(path):
+            files.extend((os.path.join(path, i), i) for i in os.listdir(path))
+        else:
+            for i in filter(os.path.exists, glob(path)):
+                files.extend((os.path.join(i, j), j) for j in os.listdir(i))
+    print(f'{len(files)} titles found')
+    return files
+
+
+def clean_str(s: str) -> str:
+    s = re.sub(r'\[[^][]*\]', '', s)
+    s = re.sub(r'\([^()]*\)', '', s)
+    # s = re.sub(r"(?ui)\W", ' ', s)
+    s = s.replace('-', ' ')
+    keep = [' ', '.', '!']
+    s = ''.join(c for c in s if c.isalnum() or c in keep)
+    return re.sub(r'\s{2,}', ' ', s).strip()
+
+
+def fuzzy_sort(query: str, options: dict, data: list) -> dict:
+    try:
+        k = [
+            i[-1] for i in process.extract(query, options, limit=len(data))
+            if i[1] > 50
+        ][0]
+        return data[k]
+    except IndexError:
+        return
+
+
+def get_year(title: str) -> int:
+    try:
+        return int(re.findall(r'\((\d{4})\)', title)[-1])
+    except IndexError:
+        return
+
+
+def fill_the_gaps(a: dict, b: dict):
+    """ Replace empty values from `a` with `b` and vice versa """
+    for k in a:
+        for v in a[k]:
+            if not a[k][v] and k in b and b[k][v]:
+                a[k][v] = b[k][v]
+
+        for v in b.get(k, []):
+            if not b[k][v] and a[k][v]:
+                b[k][v] = a[k][v]
 
 
 class MAL:
@@ -11,7 +145,6 @@ class MAL:
         self.api = 'https://api.jikan.moe/v4/anime/'
 
     def search(self, query: str = None, mal_id: int = None) -> dict:
-        print(f' --- Jikan {query = }, {mal_id = }')
         url = self.api + f'?q={quote(query)}' if query else mal_id
         return self.session.get(url).json().get('data')
 
@@ -79,7 +212,6 @@ class Anilist:
 
     def search(self, **variables) -> dict:
         variables.update({'page': 1, 'perPage': 15})
-        print(' --- Anilist', variables)
         data = self.session.post(self.api, json={
             'query': API_QUERY, 'variables': variables
         }).json()
@@ -143,7 +275,7 @@ def main():
     anilist = Anilist(session)
     titles = [i for i in get_titles() if i[1] not in mal.db]
     if not titles:
-        print('Nothing new.')
+        print('Nothing new')
         return
 
     total = len(titles)
@@ -157,8 +289,12 @@ def main():
         fill_the_gaps(anilist.db, mal.db)
         save_json(anilist.db, ANIDB)
         save_json(mal.db, MALDB)
-        sleep(0.3)
+        sleep(0.4)
 
 
 if __name__ == '__main__':
+    for d in [DATA_DIR, IMG_DIR]:
+        if not os.path.exists(d):
+            os.mkdir(d)
+
     main()
