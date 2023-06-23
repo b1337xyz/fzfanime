@@ -120,7 +120,7 @@ function preview {
                 if [ "$i" -lt "${#arr[@]}" ]; then
                     printf '%s' "${arr[i]}"
                 elif [ "$i" -eq "${#arr[@]}" ]; then
-                    [ -n "$watched" ] && printf '\033[1;32m Watched \033[m'
+                    [ -n "$watched" ] && printf '\033[1;32mWatched\033[m'
                 fi
                 printf '\n'
                 i=$((i+1))
