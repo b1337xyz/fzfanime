@@ -67,17 +67,15 @@ def save_json(obj: dict, file: str):
 
 
 def download(url: str, image: str):
-    r = requests.get(url)
-    with open(image, 'wb') as fp:
-        fp.write(r.content)
+    r = requests.get(url, stream=True)
+    with open(image, 'wb') as f:
+        f.write(r.content)
 
 
 def save_image(url: str, filename: str) -> str:
     image = os.path.join(IMG_DIR, filename)
-    if os.path.exists(image):
-        return image
-
-    Thread(target=download, args=(url, image)).start()
+    if not os.path.exists(image):
+        Thread(target=download, args=(url, image)).start()
     return image
 
 
@@ -212,10 +210,15 @@ class Anilist:
 
     def search(self, **variables) -> dict:
         variables.update({'page': 1, 'perPage': 15})
-        data = self.session.post(self.api, json={
-            'query': API_QUERY, 'variables': variables
-        }).json()
-        return data['data']['Page']['media']
+        for _ in range(3):
+            r = self.session.post(self.api, json={
+                'query': API_QUERY, 'variables': variables
+            })
+            data = r.json()['data']['Page']['media']
+            if data:
+                return data
+            print('nothing found', r.status_code, r.json())
+            sleep(0.4)
 
     def filter_by_year(self, year: int, data: list) -> list:
         by_year = [i for i in data if i['startDate']['year'] == year]
@@ -236,11 +239,12 @@ class Anilist:
             i: d['title']['romaji'] for i, d in enumerate(info)
         }, info)
 
-    def update(self, title: str, fullpath: str, fallback: dict):
+    def update(self, title: str, fullpath: str, fallback: dict) -> None:
         info = self.get_info(title, fallback.get('mal_id'))
-        if not info and fallback:
-            fallback['score'] *= 10  # bug: score can be None?
-            self.db[title] = fallback
+        if not info:
+            if fallback:
+                fallback['score'] *= 10  # bug: score can be None?
+                self.db[title] = fallback
             return
 
         url = info['coverImage']['large']
@@ -273,7 +277,8 @@ def main():
     session = requests.Session()
     mal = MAL(session)
     anilist = Anilist(session)
-    titles = [i for i in get_titles() if i[1] not in mal.db]
+    titles = [i for i in get_titles()
+              if i[1] not in mal.db and i[1] not in anilist.db]
     if not titles:
         print('Nothing new')
         return
@@ -289,7 +294,6 @@ def main():
         fill_the_gaps(anilist.db, mal.db)
         save_json(anilist.db, ANIDB)
         save_json(mal.db, MALDB)
-        sleep(0.4)
 
 
 if __name__ == '__main__':
