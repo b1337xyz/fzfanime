@@ -214,11 +214,11 @@ class Anilist:
             r = self.session.post(self.api, json={
                 'query': API_QUERY, 'variables': variables
             })
-            data = r.json()['data']['Page']['media']
-            if data:
-                return data
-            print('nothing found', r.status_code, r.json())
-            sleep(0.4)
+            if (data := r.json()['data']['Page']['media']):
+                break
+            print(variables, r.json())
+            sleep(0.5)
+        return data
 
     def filter_by_year(self, year: int, data: list) -> list:
         by_year = [i for i in data if i['startDate']['year'] == year]
@@ -294,6 +294,7 @@ def main():
         fill_the_gaps(anilist.db, mal.db)
         save_json(anilist.db, ANIDB)
         save_json(mal.db, MALDB)
+        sleep(0.2)
 
 
 if __name__ == '__main__':
