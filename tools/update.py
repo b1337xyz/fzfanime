@@ -143,6 +143,7 @@ class MAL:
         self.api = 'https://api.jikan.moe/v4/anime/'
 
     def search(self, query: str = None, mal_id: int = None) -> dict:
+        print(f'\tMAL {query = } {mal_id = }')
         url = self.api + f'?q={quote(query)}' if query else mal_id
         return self.session.get(url).json().get('data')
 
@@ -209,16 +210,12 @@ class Anilist:
         self.api = 'https://graphql.anilist.co'
 
     def search(self, **variables) -> dict:
+        print(f'\tAnilist {variables}')
         variables.update({'page': 1, 'perPage': 15})
-        for _ in range(3):
-            r = self.session.post(self.api, json={
-                'query': API_QUERY, 'variables': variables
-            })
-            if (data := r.json()['data']['Page']['media']):
-                break
-            print(variables, r.json())
-            sleep(0.5)
-        return data
+        r = self.session.post(self.api, json={
+            'query': API_QUERY, 'variables': variables
+        })
+        return r.json()['data']['Page']['media']
 
     def filter_by_year(self, year: int, data: list) -> list:
         by_year = [i for i in data if i['startDate']['year'] == year]
@@ -278,7 +275,7 @@ def main():
     mal = MAL(session)
     anilist = Anilist(session)
     titles = [i for i in get_titles()
-              if i[1] not in mal.db and i[1] not in anilist.db]
+              if i[1] not in mal.db or i[1] not in anilist.db]
     if not titles:
         print('Nothing new')
         return
@@ -294,7 +291,7 @@ def main():
         fill_the_gaps(anilist.db, mal.db)
         save_json(anilist.db, ANIDB)
         save_json(mal.db, MALDB)
-        sleep(0.2)
+        sleep(0.5)
 
 
 if __name__ == '__main__':
