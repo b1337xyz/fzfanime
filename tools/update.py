@@ -212,10 +212,9 @@ class Anilist:
     def search(self, **variables) -> dict:
         print(f'\tAnilist {variables}')
         variables.update({'page': 1, 'perPage': 15})
-        r = self.session.post(self.api, json={
+        return self.session.post(self.api, json={
             'query': API_QUERY, 'variables': variables
-        })
-        return r.json()['data']['Page']['media']
+        }).json()['data']['Page']['media']
 
     def filter_by_year(self, year: int, data: list) -> list:
         by_year = [i for i in data if i['startDate']['year'] == year]
