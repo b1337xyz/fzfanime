@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 function start_ueberzug {
     mkfifo "${UEBERZUG_FIFO}"
-    tail --follow "$UEBERZUG_FIFO" | ueberzug layer --parser json 2>/dev/null &
+    tail --follow "$UEBERZUG_FIFO" | ueberzug layer --silent --parser json 2>/dev/null &
 }
 function start_feh {
     # wait for the preview 
