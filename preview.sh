@@ -134,7 +134,7 @@ function preview {
         ;;
     esac
 
-    [[ "$BACKEND" =~ viu|chafa ]] || for _ in {1..11};do echo; done
+    [[ "$BACKEND" =~ viu|chafa ]] || for _ in {1..12};do echo; done
     # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
     show_files "$1" "$fullpath"
 }
