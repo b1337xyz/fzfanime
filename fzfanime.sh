@@ -57,8 +57,8 @@ declare -r FZF_DEFAULT_OPTS="--exact --no-separator --cycle --no-sort --no-hscro
 ### PREVIEW SETTINGS
 declare -r -x W3MIMGDISPLAY=/usr/lib/w3m/w3mimgdisplay
 declare -r -x UEBERZUG_FIFO=$(mktemp --dry-run --suffix "fzf-$$-ueberzug")
-declare -r -x WIDTH=30  # image width
-declare -r -x HEIGHT=18
+declare -r -x WIDTH=28  # image width
+declare -r -x HEIGHT=16
 declare -r -x MPVHIST=~/.cache/mpv/mpvhistory.log
 declare -r -x CACHE_DIR=~/.cache/fzfanime
 declare -r -x FEH_FILE=/tmp/.fzfanime.feh
@@ -89,7 +89,7 @@ function play {
 
     # save some cpu usage... maybe
     [ -S "$UEBERZUG_FIFO" ] && 
-        printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
+        printf '{"action":"remove", "identifier":"fzf"}\n' > "$UEBERZUG_FIFO"
 
     echo "$1" >> "$ANIMEHIST"
     # shellcheck disable=SC2086
@@ -248,9 +248,9 @@ label="╢ f[0-9] c-p c-s c-l c-r c-h c-w c-a c-e c-g c-v   a-p a-m a-u a-c a-a 
 main _ | fzf --border=bottom --border-label="${label}" \
     --border-label-pos=3:center \
     --padding 0,0,2% \
-    --prompt "NORMAL " \
+    --prompt "> " \
     --preview 'preview {}' \
-    --preview-window 'left:53%:border-none' \
+    --preview-window 'right:60%:border-left' \
     --bind 'enter:reload(main select {})+clear-query' \
     --bind 'ctrl-t:last' \
     --bind 'ctrl-b:first' \

@@ -95,8 +95,10 @@ function preview {
                 --place "${WIDTH}x${HEIGHT}@0x0" "$image" >/dev/null 2>&1 </dev/tty
         ;;
         ueberzug) 
-            printf '{"action": "add", "identifier": "%s", "x": 0, "y": 0, "width": %d, "height": %d, "scaler": "%s", "path": "%s"}\n' \
-                "fzfanime" "$WIDTH" "$HEIGHT" "distort" "$image" > "$UEBERZUG_FIFO"
+            wsize=$(xdotool getactivewindow | xargs xwininfo -id | grep -oP '(?<=geometry )\d+')
+            x=$((wsize - COLUMNS))
+            printf '{"action":"add", "identifier":"fzf", "x":%d, "y":0, "width":%d, "height":%d, "scaler":"%s", "path":"%s"}\n' \
+                "$x" "$WIDTH" "$HEIGHT" "distort" "$image" > "$UEBERZUG_FIFO"
         ;;
         viu|chafa)
             # https://github.com/atanunq/viu#from-source-recommended
@@ -134,7 +136,7 @@ function preview {
         ;;
     esac
 
-    [[ "$BACKEND" =~ viu|chafa ]] || for _ in {1..12};do echo; done
+    [[ "$BACKEND" =~ viu|chafa ]] || for _ in {1..9};do echo; done
     # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
     show_files "$1" "$fullpath"
 }
