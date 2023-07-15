@@ -239,7 +239,7 @@ class Anilist:
         info = self.get_info(title, fallback.get('mal_id'))
         if not info:
             if fallback:
-                fallback['score'] *= 10  # bug: score can be None?
+                fallback['score'] = int(fallback['score'] * 10)
                 self.db[title] = fallback
             return
 
@@ -248,7 +248,7 @@ class Anilist:
         image = save_image(url, filename)
 
         if (score := info['averageScore']) is None:
-            score = fallback.get('score', 0) * 10
+            score = int(fallback.get('score', 0) * 10)
 
         self.db[title] = {
             'anilist_id': info['id'],
