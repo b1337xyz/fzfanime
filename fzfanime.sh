@@ -67,7 +67,7 @@ declare -r -x FEH_HEIGHT=380
 declare -r -x RE_EXT='.*\.\(webm\|mkv\|avi\|mp4\|ogm\|mpg\|rmvb\)$'
 ### END OF PREVIEW SETTINGS
 
-[ -e "$DB" ]           || { "${EDITOR:-vi}" "${root}/config"; python3 tools/update.py; }
+[ -e "$DB" ]           || { "${EDITOR:-vi}" "${root}/config" && python3 tools/update.py; }
 [ -e "$WATCHED_FILE" ] || :> "$WATCHED_FILE"
 [ -e "$ANIMEHIST" ]    || :> "$ANIMEHIST"
 [ -d "$CACHE_DIR" ]    || mkdir -p "$CACHE_DIR"
@@ -99,7 +99,7 @@ function play {
         nohup  $PLAYER "$path" >/dev/null 2>&1 & disown
     fi
 
-    [ "$quit_on_play" ] && sleep 1 && kill "$pid"
+    [ "$quit_on_play" = y ] && sleep 1 && kill "$pid"
 }
 function main {
     # grep -xFf <file1> <file2> ...  will keep the order of the second file
