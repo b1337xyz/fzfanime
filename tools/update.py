@@ -16,7 +16,7 @@ DATA_DIR = os.path.join(ROOT, '../data')
 IMG_DIR = os.path.realpath(os.path.join(ROOT, '../images'))
 MALDB = os.path.join(DATA_DIR, 'maldb.json')
 ANIDB = os.path.join(DATA_DIR, 'anilist.json')
-API_QUERY = '''
+API_QUERY = '''\
 query ($idMal: Int, $search: String, $page: Int, $perPage: Int) {
     Page (page: $page, perPage: $perPage) {
         media (idMal: $idMal, search: $search, sort: SEARCH_MATCH, type: ANIME) {
@@ -44,8 +44,7 @@ query ($idMal: Int, $search: String, $page: Int, $perPage: Int) {
             }
         }
     }
-}
-'''.strip()  # noqa: E501
+}'''  # noqa: E501
 
 
 def load_json(file: str) -> dict:
@@ -248,7 +247,8 @@ class Anilist:
         image = save_image(url, filename)
 
         if (score := info['averageScore']) is None:
-            score = int(fallback.get('score', 0) * 10)
+            score = fallback.get('score')
+            score = 0 if score is None else score * 10
 
         self.db[title] = {
             'anilist_id': info['id'],
