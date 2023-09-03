@@ -95,8 +95,10 @@ function preview {
                 --place "${WIDTH}x${HEIGHT}@0x0" "$image" >/dev/null 2>&1 </dev/tty
         ;;
         ueberzug) 
-            wsize=$(xdotool getactivewindow | xargs xwininfo -id | grep -oP '(?<=geometry )\d+')
-            x=$((wsize - COLUMNS))
+            # wsize=$(xdotool getactivewindow | xargs xwininfo -id | grep -oP '(?<=geometry )\d+')
+            # x=$((wsize - COLUMNS))
+            read -r _ w < <(stty size</dev/tty)
+            x=$((w - COLUMNS - 1))
             printf '{"action":"add", "identifier":"fzf", "x":%d, "y":0, "width":%d, "height":%d, "scaler":"%s", "path":"%s"}\n' \
                 "$x" "$WIDTH" "$HEIGHT" "distort" "$image" > "$UEBERZUG_FIFO"
         ;;
