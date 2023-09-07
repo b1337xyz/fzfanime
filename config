@@ -1,4 +1,6 @@
 # Anime directories, example:
+# ~/Videos/Anime
+# /mnt/*/Anime
 
 ~/Videos/Anime
-~/mnt/*/Anime
+/mnt/*/Anime
