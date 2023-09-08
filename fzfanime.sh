@@ -143,8 +143,12 @@ function main {
         ;;
         by_time)
             keys=$(awk '{printf("\"%s\",", $0)}' "$mainfile")
-            jq -r --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
-                xargs -r0 ls --color=never -dN1tc 2>/dev/null | grep -oP '[^/]*$' | tee "$tempfile"
+            jq -r --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath | split("/")[:-1] | join("/")' "$DB" |
+                sort -u | tr \\n \\0 | xargs -r0I '{}' find '{}' -mindepth 1 -maxdepth 1 -printf '%C@\t%f\n' 2>/dev/null | sort -rn | cut -f2- 
+
+            # slow
+            # jq -r --argjson a "[${keys::-1}]" '$a[] as $k | .[$k].fullpath' "$DB" | tr \\n \\0 |
+            #     xargs -r0 ls --color=never -dN1tc 2>/dev/null | grep -oP '[^/]*$' | tee "$tempfile"
         ;;
         watched)
             grep -xFf "$mainfile" "$WATCHED_FILE" | tac | tee "$tempfile"
