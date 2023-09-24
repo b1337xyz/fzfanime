@@ -257,7 +257,7 @@ main _ | fzf --border=bottom --border-label="${label}" \
     --bind 'ctrl-t:last' \
     --bind 'ctrl-b:first' \
     --bind 'ctrl-d:delete-char' \
-    --bind 'ctrl-p:execute-silent(play {})' \
+    --bind 'ctrl-p:execute-silent(quit_on_play=n play {})' \
     --bind 'ctrl-r:reload(main)+first+change-prompt(NORMAL )' \
     --bind 'ctrl-h:reload(main adult)+first+change-prompt(ADULT )' \
     --bind 'ctrl-a:reload(main avail)+change-prompt(AVAILABLE )' \
