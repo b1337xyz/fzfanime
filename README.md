@@ -56,7 +56,7 @@ Image Preview (optional)
     - `xwininfo` (`xorg-xwininfo` on Arch btw)
 
 ## Setup
-ArchLinux
+Arch Linux
 ```
 sudo pacman -Syu git python python-pip fzf jq ueberzug --needed
 ```  
@@ -69,7 +69,7 @@ sudo apt install git python3 python3-pip fzf jq ueberzug -y
 git clone https://github.com/b1337xyz/fzfanime.git
 cd fzfanime
 python3 -m pip install -U -r requirements.txt
-bash fzfanime.sh  # before running edit config
+bash fzfanime.sh
 ```
 
 [Settings](https://github.com/b1337xyz/fzfanime/blob/main/fzfanime.sh#L48)
