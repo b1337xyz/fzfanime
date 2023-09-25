@@ -49,9 +49,10 @@ function show_files {
     fi
 }
 function preview {
-    IFS=$'\n' read -d '' -r title _type genres episodes score rated studios image fullpath < <(\
+    IFS=$'\n' read -d '' -r title year _type genres episodes score rated studios image fullpath < <(\
         jq -Mr --argjson k "\"$1\"" '.[$k] |
            "\(.title)
+            \(.year // "Unknown")
             \(.type // "Unknown")
             \(.genres | if length > 0 then . | join(", ") else "Unknown" end)
             \(.episodes // "Unknown")
@@ -72,18 +73,20 @@ function preview {
         printf "404 - preview not found\n\n"
         return 0
     fi
+
     watched=$(grep -xF "$1" "$WATCHED_FILE" || true)
     if ! [[ "$BACKEND" =~ viu|chafa ]];then
         # shellcheck disable=SC2153
-        printf '%'"$WIDTH"'s %s\n'           ' ' "$title"
-        printf '%'"$WIDTH"'s Type: %s\n'     ' ' "${_type}"
-        printf '%'"$WIDTH"'s Genre: %s\n'    ' ' "$genres"
-        printf '%'"$WIDTH"'s Episodes: %s\n' ' ' "$episodes"
-        printf '%'"$WIDTH"'s Rated: %s\n'    ' ' "$rated"
-        printf '%'"$WIDTH"'s Score: %s\n'    ' ' "$score"
-        printf '%'"$WIDTH"'s Studios: %s\n'  ' ' "$studios"
+        printf '%*s %s\n' "$WIDTH" ' ' "$title"
+        printf '%*s %s\n' "$WIDTH" ' ' "Year: $year"
+        printf '%*s %s\n' "$WIDTH" ' ' "Type: ${_type}"
+        printf '%*s %s\n' "$WIDTH" ' ' "Genre: $genres"
+        printf '%*s %s\n' "$WIDTH" ' ' "Episodes: $episodes"
+        printf '%*s %s\n' "$WIDTH" ' ' "Rated: $rated"
+        printf '%*s %s\n' "$WIDTH" ' ' "Score: $score"
+        printf '%*s %s\n' "$WIDTH" ' ' "Studios: $studios"
 
-        if [ -n "$watched" ];then printf '%'"$WIDTH"'s \e[1;32mWatched\e[m\n\r' ' '; else echo; fi
+        if [ -n "$watched" ];then printf '%*s \e[1;32m%s\e[m\n' "$WIDTH" ' ' 'Watched'; else echo; fi
     fi
 
     case "$BACKEND" in
@@ -107,6 +110,7 @@ function preview {
             # `tput cup 0 0` and `viu -a -x 0 -y 0` does not work so i had to do this :(
             arr=(
                 "$title"
+                "Year: $year"
                 "Type: ${_type}"
                 "Genre: $genres"
                 "Episodes: $episodes"
@@ -118,6 +122,7 @@ function preview {
             if [ "$BACKEND" = "chafa"  ];then
                 chafa --size="${WIDTH}x${HEIGHT}" "$image"
             else
+                # TERM needs to be set
                 viu -s -w "$WIDTH" -h "$HEIGHT" "$image"
             fi | while read -r str; do
                 printf '%s\b ' "$str"
@@ -129,12 +134,6 @@ function preview {
                 printf '\n'
                 i=$((i+1))
             done
-        ;;
-        w3m)
-            # https://github.com/junegunn/fzf/issues/2551
-            read -r width height < <(printf '5;%s' "$image" | "$W3MIMGDISPLAY")
-            printf '0;1;%s;%s;%s;%s;;;;;%s\n4;\n3;' \
-                "0" "0" "$width" "$height" "$image" | "$W3MIMGDISPLAY"
         ;;
     esac
 

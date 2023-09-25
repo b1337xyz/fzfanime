@@ -2,6 +2,8 @@
 # shellcheck disable=SC2155,SC2034
 set -eo pipefail
 
+export TERM=screen-256color
+
 echo -ne "\033]0;fzfanime.sh\007"
 root=$(realpath "$0") root=${root%/*}
 cd "$root"
@@ -44,14 +46,14 @@ while [ $# -gt 0 ];do
     esac
     shift
 done
-[ -z "$DISPLAY" ] && hash "${fallback:-viu}" && backend=${fallback:-viu}
+[ -z "$DISPLAY" ] && backend=${fallback:-viu}
 
 ### USER SETTINGS
 declare -r -x DB="${root}/data/anilist.json"
 declare -r -x ANIMEHIST="${root}/data/anime_history.txt"
 declare -r -x WATCHED_FILE="${root}/data/watched_anime.txt"
 declare -r -x PLAYER=${player:-'mpv --force-window=immediate --input-ipc-server=/tmp/mpvanime'}
-declare -r -x BACKEND=${backend:-ueberzug}
+declare -x BACKEND=${backend:-ueberzug}
 declare -r FZF_DEFAULT_OPTS="--exact --no-separator --cycle --no-sort --no-hscroll --no-scrollbar --color=dark"
 ### END OF USER SETTINGS
 
@@ -72,7 +74,7 @@ declare -r -x RE_EXT='.*\.\(webm\|mkv\|avi\|mp4\|ogm\|mpg\|rmvb\)$'
 [ -e "$WATCHED_FILE" ] || :> "$WATCHED_FILE"
 [ -e "$ANIMEHIST" ]    || :> "$ANIMEHIST"
 [ -d "$CACHE_DIR" ]    || mkdir -p "$CACHE_DIR"
-hash "$BACKEND"        || { printf 'backend "%s" not found\n' "$BACKEND"; exit 1; }
+hash "$BACKEND" 2>/dev/null || { printf '"%s" not found\n' "$BACKEND"; exit 1; }
 
 # shellcheck disable=SC1091
 source preview.sh || { printf 'Failed to source %s\n' "${root}/preview.sh"; exit 1; }
@@ -130,7 +132,7 @@ function main {
         by_year)
             # sed 's/.*(\([0-9]\{4\}\)).*/\1;\0/g' "$mainfile" | sort -n | sed 's/^[0-9]\{4\}\;//g' | tee "$tempfile"
             grep -xFf "$mainfile" < <(jq -r \
-                '[keys[] as $k | {id: $k, aired: .[$k].aired}] | sort_by(.aired) | .[].id' "$DB") | tee "$tempfile"
+                '[keys[] as $k | {id: $k, t: .[$k].aired}] | sort_by(.t) | .[].id' "$DB") | tee "$tempfile"
         ;;
         by_episodes)
             grep -xFf "$mainfile" <(jq -r '[keys[] as $k |
@@ -184,19 +186,10 @@ function main {
             jq -r '.[].fullpath' "$DB" | grep -oP '.*(?=/.*/)' | sort -u
             return
         ;;
-        menu)
-            printf menu > "$modefile"
-            grep -oP '(?<=\(main )\w+(?=\))' "$script" | sort -V
-            return
-        ;;
         go_back) cat "$goback"; return ;;
         select)
             curr_mode=$(<"$modefile")
-            if [ "$curr_mode" = menu ];then
-                # curl -XPOST localhost:6266 -d "change-prompt(${2^^} )"
-                main "$2"
-                return
-            elif [ "$curr_mode" = genres ];then
+            if [ "$curr_mode" = genres ];then
                 if [ "$2" = "Unknown" ];then
                     jq -r 'keys[] as $k | select(.[$k]["genres"] == []) | $k' "$DB"
                 else
@@ -246,23 +239,46 @@ fi
 
 n=$'\n'
 # --color 'gutter:-1,bg+:-1,fg+:6:bold,hl+:1,hl:1,border:7:bold,header:6:bold,info:7,pointer:1' \
-label="╢ f[0-9] c-p c-s c-l c-r c-h c-w c-a c-e c-g c-v   a-p a-m a-u a-c a-a a-d a-s a-b ╟"
-main _ | fzf --border=bottom --border-label="${label}" \
+red=$'\e[1;31m'
+blu=$'\e[1;34m'
+rst=$'\e[m'
+label="╢ \
+^p ${red}pla${rst} \
+^s ${red}sco${rst} \
+^l ${red}las${rst} \
+^f ${red}fir${rst} \
+^r ${red}rel${rst} \
+^h ${red}hen${rst} \
+^w ${red}wat${rst} \
+^a ${red}ava${rst} \
+^e ${red}epi${rst} \
+^g ${red}gen${rst} \
+^v ${red}typ${rst} \
+[p ${blu}pat${rst} \
+[u ${blu}unw${rst} \
+[c ${blu}con${rst} \
+[a ${blu}add${rst} \
+[d ${blu}del${rst} \
+[s ${blu}shu${rst} \
+[b ${blu}siz${rst} \
+╟"
+
+main _ | fzf --border=bottom --reverse --border-label="${label}" \
     --border-label-pos=3:center \
     --padding 0,0,2% \
     --prompt "> " \
     --preview 'preview {}' \
     --preview-window 'right:60%:border-left' \
     --bind 'enter:reload(main select {})+clear-query' \
-    --bind 'ctrl-t:last' \
-    --bind 'ctrl-b:first' \
+    --bind 'ctrl-l:last' \
+    --bind 'ctrl-f:first' \
     --bind 'ctrl-d:delete-char' \
     --bind 'ctrl-p:execute-silent(quit_on_play=n play {})' \
     --bind 'ctrl-r:reload(main)+first+change-prompt(NORMAL )' \
     --bind 'ctrl-h:reload(main adult)+first+change-prompt(ADULT )' \
     --bind 'ctrl-a:reload(main avail)+change-prompt(AVAILABLE )' \
     --bind 'ctrl-w:reload(main watched)+first+change-prompt(WATCHED )' \
-    --bind 'ctrl-l:reload(main history)+first+change-prompt(HISTORY )' \
+    --bind 'ctrl-m:reload(main history)+first+change-prompt(HISTORY )' \
     --bind 'ctrl-g:reload(main genre)+first+change-prompt(GENRE )' \
     --bind 'ctrl-v:reload(main type)+first+change-prompt(TYPE )' \
     --bind 'ctrl-y:reload(main by_year)+first+change-prompt(BY YEAR )' \
@@ -270,7 +286,6 @@ main _ | fzf --border=bottom --border-label="${label}" \
     --bind 'ctrl-e:reload(main by_episodes)+first+change-prompt(BY EPISODE )' \
     --bind 'alt-b:reload(main by_size)+first+change-prompt(BY SIZE )' \
     --bind 'alt-l:reload(main by_time)+first+change-prompt(BY TIME )' \
-    --bind 'alt-m:reload(main menu)+first+change-prompt(MENU )' \
     --bind 'alt-p:reload(main path)+first+change-prompt(PATH )' \
     --bind 'alt-r:reload(main rating)+first+change-prompt(RATING )' \
     --bind 'alt-s:reload(main shuffle)+first+change-prompt(SHUFFLED )' \
