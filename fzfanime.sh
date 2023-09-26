@@ -249,6 +249,7 @@ label="╢ \
 ^f ${red}fir${rst} \
 ^r ${red}rel${rst} \
 ^h ${red}hen${rst} \
+^t ${red}his${rst} \
 ^w ${red}wat${rst} \
 ^a ${red}ava${rst} \
 ^e ${red}epi${rst} \
@@ -278,7 +279,7 @@ main _ | fzf --border=bottom --reverse --border-label="${label}" \
     --bind 'ctrl-h:reload(main adult)+first+change-prompt(ADULT )' \
     --bind 'ctrl-a:reload(main avail)+change-prompt(AVAILABLE )' \
     --bind 'ctrl-w:reload(main watched)+first+change-prompt(WATCHED )' \
-    --bind 'ctrl-m:reload(main history)+first+change-prompt(HISTORY )' \
+    --bind 'ctrl-t:reload(main history)+first+change-prompt(HISTORY )' \
     --bind 'ctrl-g:reload(main genre)+first+change-prompt(GENRE )' \
     --bind 'ctrl-v:reload(main type)+first+change-prompt(TYPE )' \
     --bind 'ctrl-y:reload(main by_year)+first+change-prompt(BY YEAR )' \
