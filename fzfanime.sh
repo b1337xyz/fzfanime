@@ -269,7 +269,7 @@ main _ | fzf --border=bottom --reverse --border-label="${label}" \
     --padding 0,0,2% \
     --prompt "> " \
     --preview 'preview {}' \
-    --preview-window 'right:60%:border-left' \
+    --preview-window 'right:48%:border-left' \
     --bind 'enter:reload(main select {})+clear-query' \
     --bind 'ctrl-l:last' \
     --bind 'ctrl-f:first' \
