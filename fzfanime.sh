@@ -54,7 +54,7 @@ declare -r -x ANIMEHIST="${root}/data/anime_history.txt"
 declare -r -x WATCHED_FILE="${root}/data/watched_anime.txt"
 declare -r -x PLAYER=${player:-'mpv --force-window=immediate --input-ipc-server=/tmp/mpvanime'}
 declare -x BACKEND=${backend:-ueberzug}
-declare -r FZF_DEFAULT_OPTS="--exact --no-separator --cycle --no-sort --no-hscroll --no-scrollbar --color=dark"
+declare -r FZF_DEFAULT_OPTS="--exact --no-separator --cycle --no-hscroll --no-scrollbar --color=dark"
 ### END OF USER SETTINGS
 
 ### PREVIEW SETTINGS
