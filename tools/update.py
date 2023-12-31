@@ -143,7 +143,7 @@ class MAL:
 
     def search(self, query: str = None, mal_id: int = None) -> dict:
         print(f'\tMAL {query = } {mal_id = }')
-        url = self.api + f'?q={quote(query)}' if query else mal_id
+        url = self.api + (f'?q={quote(query)}' if query else mal_id)
         return self.session.get(url).json().get('data')
 
     def filter_by_year(self, year: int, data: list) -> list:
@@ -155,7 +155,7 @@ class MAL:
 
     def get_info(self, title: str) -> dict:
         if (idMal := re.search(r'\[malid-(\d+)\]', title)) is not None:
-            return self.search(idMal=idMal.group(1))
+            return self.search(mal_id=idMal.group(1))
 
         year = get_year(title)
         query = clean_str(title)
@@ -287,6 +287,7 @@ def main():
         mal.update(title, fullpath)
         anilist.update(title, fullpath, mal.db.get(title, {}).copy())
 
+        # fill the gaps in anilist.db with mal.db and vise versa
         fill_the_gaps(anilist.db, mal.db)
         save_json(anilist.db, ANIDB)
         save_json(mal.db, MALDB)

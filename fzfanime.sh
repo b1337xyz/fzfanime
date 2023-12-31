@@ -38,7 +38,11 @@ while [ $# -gt 0 ];do
         -b|--backend) shift; backend=$1 ;;
         -f|--fallback) shift; fallback=$1 ;;
         -e|--edit) "${EDITOR:-vi}" config; exit 0 ;;
-        -u|--update) python3 tools/update.py; exit $? ;;
+        -u|--update) 
+            . "${root}/venv/bin/activate"
+            python3 tools/update.py
+            exit $?
+            ;;
         -c|--clean) python3 tools/clean_db.py; exit $? ;;
         -g|--upgrade) python3 tools/clean_db.py && python3 tools/update.py; exit $? ;;
         -q|--quit-on-play) declare -r -x quit_on_play=y ;;
