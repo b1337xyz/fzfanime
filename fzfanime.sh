@@ -273,11 +273,13 @@ label="╢ \
 ╟"
 
 main _ | fzf --border=bottom --reverse --border-label="${label}" \
+    --info inline-right \
     --border-label-pos=3:center \
     --padding 0,0,2% \
+    --border=sharp \
     --prompt "> " \
     --preview 'preview {}' \
-    --preview-window 'right:48%:border-left' \
+    --preview-window 'right:48%:border-none' \
     --bind 'enter:reload(main select {})+clear-query' \
     --bind 'ctrl-n:execute(delete {})+refresh-preview' \
     --bind 'ctrl-l:last' \

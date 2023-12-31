@@ -103,7 +103,7 @@ function preview {
             printf '%s\n' "Score: $score"
             printf '%s\n' "Studios: $studios"
             if [ -n "$watched" ];then
-                printf '%*s \e[1;32m%s\e[m\n' "$WIDTH" ' ' 'Watched'
+                printf '\e[1;32m%s\e[m\n' 'Watched'
             fi
             echo
         ;;
