@@ -59,16 +59,18 @@ Image Preview (optional)
 ## Setup
 Arch Linux
 ```
-sudo pacman -Syu git python python-pip fzf jq ueberzug --needed
+sudo pacman -Syu git python python-pip python-virtualenv fzf jq ueberzug --needed
 ```  
 Debian
 ```
-sudo apt install git python3 python3-pip fzf jq ueberzug -y
+sudo apt install git python3 python3-pip python3-virtualenv fzf jq ueberzug -y
 ```
 
 ```
 git clone --depth=1 https://github.com/b1337xyz/fzfanime.git
 cd fzfanime
+python3 -m venv venv
+source venv/bin/activate
 python3 -m pip install -U -r requirements.txt
 bash fzfanime.sh
 ```
