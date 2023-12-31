@@ -30,8 +30,14 @@ for k in keys:
         skip.append(parent)
         continue
     if not fullpath.exists():
-        del anidb[k]
-        del maldb[k]
+        try:
+            del anidb[k]
+        except KeyError:
+            pass
+        try:
+            del maldb[k]
+        except KeyError:
+            pass
         print('{} removed'.format(k))
 
 after = len(anidb)

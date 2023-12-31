@@ -64,7 +64,7 @@ function preview {
 
     [ -f "$image" ] || printf 'Image not found\r'
     [ "$BACKEND" = "kitty" ] && kitty icat --transfer-mode=file \
-        --stdin=no --clear --silent >/dev/null 2>&1 </dev/tty
+        --stdin=no --clear --silent 2>/dev/null </dev/tty
 
     if [ "$title" = "null" ];then
         [ -e "$UEBERZUG_FIFO" ] &&
@@ -75,7 +75,7 @@ function preview {
     fi
 
     watched=$(grep -xF "$1" "$WATCHED_FILE" || true)
-    if ! [[ "$BACKEND" =~ viu|chafa ]];then
+    if ! [[ "$BACKEND" =~ viu|chafa|kitty ]];then
         # shellcheck disable=SC2153
         printf '%*s %s\n' "$WIDTH" ' ' "$title"
         printf '%*s %s\n' "$WIDTH" ' ' "Year: $year"
@@ -95,7 +95,21 @@ function preview {
             # shellcheck disable=SC2153
             kitty icat --transfer-mode=file \
                 --stdin=no --silent --align=left --scale-up \
-                --place "${WIDTH}x${HEIGHT}@0x0" "$image" >/dev/null 2>&1 </dev/tty
+                --place "${WIDTH}x${HEIGHT}@0x0" "$image" 2>/dev/null </dev/tty
+
+            echo
+            printf '%s\n' "$title"
+            printf '%s\n' "Year: $year"
+            printf '%s\n' "Type: ${_type}"
+            printf '%s\n' "Genre: $genres"
+            printf '%s\n' "Episodes: $episodes"
+            printf '%s\n' "Rated: $rated"
+            printf '%s\n' "Score: $score"
+            printf '%s\n' "Studios: $studios"
+            if [ -n "$watched" ];then
+                printf '%*s \e[1;32m%s\e[m\n' "$WIDTH" ' ' 'Watched'
+            fi
+            echo
         ;;
         ueberzug) 
             # wsize=$(xdotool getactivewindow | xargs xwininfo -id | grep -oP '(?<=geometry )\d+')
@@ -137,7 +151,7 @@ function preview {
         ;;
     esac
 
-    [[ "$BACKEND" =~ viu|chafa ]] || for _ in {1..9};do echo; done
+    [[ "$BACKEND" =~ viu|chafa|kitty ]] || for _ in {1..9};do echo; done
     # for _ in $(seq $((COLUMNS)));do printf '─' ;done ; echo
     show_files "$1" "$fullpath"
 }

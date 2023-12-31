@@ -57,7 +57,7 @@ declare -r -x DB="${root}/data/anilist.json"
 declare -r -x ANIMEHIST="${root}/data/anime_history.txt"
 declare -r -x WATCHED_FILE="${root}/data/watched_anime.txt"
 declare -r -x PLAYER=${player:-'mpv --force-window=immediate --input-ipc-server=/tmp/mpvanime'}
-declare -x BACKEND=${backend:-ueberzug}
+declare -x BACKEND=${backend:-kitty}
 declare -r FZF_DEFAULT_OPTS="--exact --no-separator --cycle --no-hscroll --no-scrollbar --color=dark"
 ### END OF USER SETTINGS
 
@@ -228,10 +228,7 @@ function main {
 }
 delete() {
     path=$(jq -r --arg k "$1" '.[$k].fullpath' "$DB")
-    ask=$(printf 'Yes\nNo' | dmenu -l 2 -p "Delete ${path}?")
-    case "$ask" in
-        Yes) rm -rf "$path" ;;
-    esac
+    printf 'Yes\nNo' | dmenu -l 2 -p "Delete ${path}?" | grep -qx Yes && rm -rf "$path"
 }
 function finalise {
     jobs -p | xargs -r kill 2>/dev/null || true
@@ -282,7 +279,7 @@ main _ | fzf --border=bottom --reverse --border-label="${label}" \
     --preview 'preview {}' \
     --preview-window 'right:48%:border-left' \
     --bind 'enter:reload(main select {})+clear-query' \
-    --bind 'ctrl-n:execute(delete {})+refresh-preview+down' \
+    --bind 'ctrl-n:execute(delete {})+refresh-preview' \
     --bind 'ctrl-l:last' \
     --bind 'ctrl-f:first' \
     --bind 'ctrl-d:delete-char' \
