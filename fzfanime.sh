@@ -275,7 +275,7 @@ label="╢ \
 main _ | fzf --border=bottom --reverse --border-label="${label}" \
     --info inline-right \
     --border-label-pos=3:center \
-    --padding 0,0,2% \
+    --padding 2%,1,2%,1 \
     --border=sharp \
     --prompt "> " \
     --preview 'preview {}' \

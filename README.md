@@ -73,11 +73,11 @@ python3 -m pip install -U -r requirements.txt
 bash fzfanime.sh
 ```
 
-[Settings](https://github.com/b1337xyz/fzfanime/blob/main/fzfanime.sh#L48)
+[Settings](https://github.com/b1337xyz/fzfanime/blob/main/fzfanime.sh#L55)
 
 ---
 
-![demo](demo.gif)
+![demo](demo.jpg)
 
 ## Key bindings
 ```
