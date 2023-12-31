@@ -63,8 +63,7 @@ function preview {
             \(.fullpath)"' "$DB" 2>/dev/null | sed 's/^\s*//')
 
     [ -f "$image" ] || printf 'Image not found\r'
-    [ "$BACKEND" = "kitty" ] && kitty icat --transfer-mode=file \
-        --stdin=no --clear --silent 2>/dev/null </dev/tty
+    [ "$BACKEND" = kitty ] && kitty icat --transfer-mode=file --unicode-placeholder --stdin=no --clear --silent 2>/dev/null </dev/tty
 
     if [ "$title" = "null" ];then
         [ -e "$UEBERZUG_FIFO" ] &&
@@ -91,11 +90,8 @@ function preview {
 
     case "$BACKEND" in
         feh) printf '%s\n' "$image" > "$FEH_FILE" ;;
-        kitty)
-            # shellcheck disable=SC2153
-            kitty icat --transfer-mode=file \
-                --stdin=no --silent --align=left --scale-up \
-                --place "${WIDTH}x${HEIGHT}@0x0" "$image" 2>/dev/null </dev/tty
+        kitty) # broken
+            kitty icat --transfer-mode=file --stdin=no --silent --align=left --scale-up --unicode-placeholder --place "${WIDTH}x${HEIGHT}@1x1" "$image" 2>/dev/null </dev/tty
 
             echo
             printf '%s\n' "$title"
