@@ -104,6 +104,7 @@ ctrl-b  : Go to first item of the list
 ctrl-t  : Go to last item of the list
 ctrl-p  : Play current line with `$PLAYER`
 ctrl-r  : Reload
+ctrl-n  : Delete anime path (!!! use with caution !!!) (requires `dmenu`)
 end     : Preview bottom
 home    : Preview top
 ```
