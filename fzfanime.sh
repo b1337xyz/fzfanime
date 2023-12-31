@@ -263,6 +263,7 @@ label="╢ \
 ^e ${red}epi${rst} \
 ^g ${red}gen${rst} \
 ^v ${red}typ${rst} \
+^n ${red}rem${rst} \
 [p ${blu}pat${rst} \
 [u ${blu}unw${rst} \
 [c ${blu}con${rst} \
