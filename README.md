@@ -46,6 +46,7 @@ Notes:
 - [jq](https://github.com/stedolan/jq)
 - [devour](https://github.com/salman-abedin/devour) (optional)
 - [mpvhistory.lua](https://github.com/b1337xyz/config/blob/main/mpv/scripts/mpvhistory.lua) (optional)
+- [dmenu](https://tools.suckless.org/dmenu/) (optional)
 
 Image Preview (optional)
 - [ueberzug](https://github.com/b1337xyz/ueberzug)
