@@ -226,13 +226,20 @@ function main {
         mv -f "$tempfile" "$mainfile"  # Make sure not to read and write the same file in the same pipeline
     fi
 }
+delete() {
+    path=$(jq -r --arg k "$1" '.[$k].fullpath' "$DB")
+    ask=$(printf 'Yes\nNo' | dmenu -l 2 -p "Delete ${path}?")
+    case "$ask" in
+        Yes) rm -rf "$path" ;;
+    esac
+}
 function finalise {
     jobs -p | xargs -r kill 2>/dev/null || true
     rm "$FEH_FILE" "$UEBERZUG_FIFO" "$tempfile" "$mainfile" "$goback" "$modefile" 2>/dev/null || true
     exit 0
 }
 trap finalise EXIT
-export -f main play
+export -f main play delete
 if [ -n "$DISPLAY" ];then
     case "$BACKEND" in
         ueberzug) start_ueberzug ;;
@@ -275,6 +282,7 @@ main _ | fzf --border=bottom --reverse --border-label="${label}" \
     --preview 'preview {}' \
     --preview-window 'right:48%:border-left' \
     --bind 'enter:reload(main select {})+clear-query' \
+    --bind 'ctrl-n:execute(delete {})+refresh-preview+down' \
     --bind 'ctrl-l:last' \
     --bind 'ctrl-f:first' \
     --bind 'ctrl-d:delete-char' \
