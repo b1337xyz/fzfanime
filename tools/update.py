@@ -83,7 +83,6 @@ def get_titles() -> list:
     with open(CONFIG, 'r') as f:
         config = [os.path.expanduser(i) for i in map(str.strip, f)
                   if i and not i.startswith('#')]
-
     files = []
     for path in config:
         if os.path.exists(path):
@@ -92,6 +91,8 @@ def get_titles() -> list:
             for i in filter(os.path.exists, glob(path)):
                 files.extend((os.path.join(i, j), j) for j in os.listdir(i))
     print(f'{len(files)} titles found')
+
+    # files = [(fullpath, title)]
     return files
 
 
@@ -174,6 +175,7 @@ class MAL:
     def update(self, title: str, fullpath: str):
         info = self.get_info(title)
         if not info:
+            print('Nothing found', fullpath)
             return
 
         url = info['images']['jpg']['large_image_url']
@@ -240,6 +242,8 @@ class Anilist:
             if fallback:
                 fallback['score'] = int(fallback['score'] * 10)
                 self.db[title] = fallback
+            else:
+                print('Nothing found', fullpath)
             return
 
         url = info['coverImage']['large']
@@ -273,15 +277,23 @@ def main():
     session = requests.Session()
     mal = MAL(session)
     anilist = Anilist(session)
-    titles = [i for i in get_titles()
-              if i[1] not in mal.db or i[1] not in anilist.db]
-    if not titles:
-        print('Nothing new')
-        return
-
+    titles = get_titles()
     total = len(titles)
+    not_found = []
     for idx, tmp in enumerate(titles, start=1):
         fullpath, title = tmp
+        if title in mal.db and not os.path.exists(mal.db[title]['fullpath']):
+            print(title, 'not found')
+            mal.db[title]['fullpath'] = fullpath
+            anilist.db[title]['fullpath'] = fullpath
+            save_json(anilist.db, ANIDB)
+            save_json(mal.db, MALDB)
+            print('path updated to', fullpath)
+            continue
+
+        if title in mal.db and title in anilist.db:
+            continue
+
         print(f'[{idx}/{total}] {title}')
 
         mal.update(title, fullpath)
