@@ -108,6 +108,7 @@ function play {
 
     [ "$quit_on_play" = y ] && sleep 1 && kill "$pid"
 }
+
 function main {
     # grep -xFf <file1> <file2> ...  will keep the order of the second file
     
@@ -226,15 +227,18 @@ function main {
         mv -f "$tempfile" "$mainfile"  # Make sure not to read and write the same file in the same pipeline
     fi
 }
-delete() {
+
+function delete {
     path=$(jq -r --arg k "$1" '.[$k].fullpath' "$DB")
     printf 'Yes\nNo' | dmenu -l 2 -p "Delete ${path}?" | grep -qx Yes && rm -rf "$path"
 }
+
 function finalise {
     jobs -p | xargs -r kill 2>/dev/null || true
     rm "$FEH_FILE" "$UEBERZUG_FIFO" "$tempfile" "$mainfile" "$goback" "$modefile" 2>/dev/null || true
     exit 0
 }
+
 trap finalise EXIT
 export -f main play delete
 if [ -n "$DISPLAY" ];then
