@@ -111,8 +111,8 @@ function preview {
             # wsize=$(xdotool getactivewindow | xargs xwininfo -id | grep -oP '(?<=geometry )\d+')
             # x=$((wsize - COLUMNS))
             read -r _ w < <(stty size</dev/tty)
-            x=$((w - COLUMNS - 1))
-            printf '{"action":"add", "identifier":"fzf", "x":%d, "y":0, "width":%d, "height":%d, "scaler":"%s", "path":"%s"}\n' \
+            x=$((w - COLUMNS - 3))
+            printf '{"action":"add", "identifier":"fzf", "x":%d, "y":2, "width":%d, "height":%d, "scaler":"%s", "path":"%s"}\n' \
                 "$x" "$WIDTH" "$HEIGHT" "distort" "$image" > "$UEBERZUG_FIFO"
         ;;
         viu|chafa)
