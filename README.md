@@ -79,8 +79,6 @@ bash fzfanime.sh
 
 ---
 
-![demo](demo.jpg)
-
 ## Key bindings
 ```
 alt-c   : Continue watching
