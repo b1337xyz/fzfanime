@@ -23,7 +23,6 @@ Options:
     -h --help               Show this message
 
 Notes:
-    - --option=value is not supported, use --option value
     - \$DB generated using Anilist APIv2 -> https://anilist.gitbook.io/anilist-apiv2-docs
       and Jikan APIv4 -> https://api.jikan.moe/v4/anime
     - By default AniList is used as main database
@@ -34,9 +33,9 @@ EOF
 
 while [ $# -gt 0 ];do
     case "$1" in
-        -p|--player) shift; player=$1 ;;
-        -b|--backend) shift; backend=$1 ;;
-        -f|--fallback) shift; fallback=$1 ;;
+        -p|--player*) shift; player=${1#*=} ;;
+        -b|--backend*) shift; backend=${1#*=} ;;
+        -f|--fallback*) shift; fallback=${1#*=} ;;
         -e|--edit) "${EDITOR:-vi}" config; exit 0 ;;
         -u|--update) 
             . "${root}/venv/bin/activate"
