@@ -15,7 +15,6 @@ Options:
     -h --help               Show this message
 
 Notes:
-    - --option=value is not supported, use --option value
     - $DB generated using Anilist APIv2 -> https://anilist.gitbook.io/anilist-apiv2-docs
       and Jikan APIv4 -> https://api.jikan.moe/v4/anime
     - By default AniList is used as main database
